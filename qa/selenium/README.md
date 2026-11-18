@@ -7,9 +7,9 @@ This Selenium smoke flow covers the main browser journey: register a disposable 
 - Node.js 22 or newer.
 - Finora backend and MongoDB running.
 - Finora frontend running at `http://localhost:5173` (or set `FINORA_BASE_URL`).
-- Google Chrome installed.
+- Microsoft Edge installed.
 
-Selenium Manager handles the matching Chrome driver; no separate ChromeDriver download is needed.
+Selenium Manager handles the matching Edge driver; no separate ChromeDriver download is needed.
 
 ## Run
 
