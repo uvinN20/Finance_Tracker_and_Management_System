@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "finora-qa-api-smoke",
+    "_postman_id": "8de5ca16-4c67-4fb5-a9a8-9494a88dba42",
     "name": "Finora API Smoke Tests",
     "description": "Sequential API smoke flow for the Finora QA project. Uses a unique disposable QA account and checks health, registration, accounts, income transactions, and transfer balance integrity.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -243,11 +243,24 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/transactions?type=income&search=Finora%20QA%20income%20check",
+          "protocol": "http",
           "host": [
-            "{{baseUrl}}"
+            "localhost"
           ],
+          "port": "5000",
           "path": [
-            "transactions?type=income&search=Finora%20QA%20income%20check"
+            "api",
+            "transactions"
+          ],
+          "query": [
+            {
+              "key": "type",
+              "value": "income"
+            },
+            {
+              "key": "search",
+              "value": "Finora QA income check"
+            }
           ]
         }
       },
