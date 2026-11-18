@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { Builder, Browser, By, until } = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
+const edge = require('selenium-webdriver/edge');
 
 const baseUrl = (process.env.FINORA_BASE_URL || 'http://localhost:5173').replace(/\/$/, '');
 const unique = Date.now();
@@ -15,13 +15,14 @@ async function visibleText(driver, locator, timeout = 15000) {
 }
 
 (async () => {
-  const options = new chrome.Options();
+  const options = new edge.Options();
+  options.addArguments('--window-size=1440,1000');
   if (process.env.HEADLESS === '1') {
-    options.addArguments('--headless=new', '--window-size=1440,1000');
+    options.addArguments('--headless=new');
   }
 
   const driver = await new Builder()
-    .forBrowser(Browser.CHROME)
+    .forBrowser(Browser.EDGE)
     .setChromeOptions(options)
     .build();
 
