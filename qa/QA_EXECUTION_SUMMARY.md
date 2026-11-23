@@ -15,7 +15,7 @@ Execution date: 2026-11-23. This summary reports checks run locally and the comp
 | Selenium Edge UI smoke | Registration, transaction entry/listing, and LKR 100 dashboard balance passed |
 | Frontend production build | Passed; page-based lazy loading reduced the main JS entry bundle from 672.10 kB to 237.43 kB (80.23 kB gzip) |
 | npm dependency audit | Backend and frontend both report 0 vulnerabilities after compatible lockfile updates |
-| Node performance smoke | 1, 10, 50, and 100 concurrent users; 0 errors across dashboard and transaction-list samples |
+| Node performance smoke | 1, 10, 50, and 100 concurrent users; additionally 100 users × 30 requests per endpoint (6,000 samples); 0 errors |
 | Apache JMeter load smoke | 1, 10, 50, and 100 users; 1,610 total samples, 0 errors; per-endpoint latency recorded in [`jmeter/README.md`](jmeter/README.md) |
 | QA artifact validation | 39-file inventory check passed; workflow and JMeter XML parsed; 60 manual cases and 8 Postman requests counted |
 
@@ -47,7 +47,7 @@ See [`defect-log.md`](defect-log.md) for reproduction and regression evidence.
 
 ## Remaining external verification
 
-- GitHub Actions run [45152502584](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45152502584) completed successfully on commit `8202a58`. Backend unit/API integration, MongoDB-backed integration, Cucumber, Postman, and frontend production build steps passed. The optional SonarQube Cloud step was skipped because the repository credentials/settings are not configured.
+- GitHub Actions run [45153054231](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45153054231) completed successfully on commit `7e64705`. Backend unit/API integration, MongoDB-backed integration, Cucumber, Postman, and frontend production build steps passed. The optional SonarQube Cloud step was skipped because the repository credentials/settings are not configured.
 - SonarQube workflow configuration is ready, but no scan result is available until a Sonar project is configured and its secrets/variables are added to the repository.
 - All four proposed JMeter user profiles ran as short local smoke tests; they are not a capacity benchmark, and production-like data/hardware plus a sustained load were not tested.
 - The 60-case manual inventory is designed, but its manual `Actual result` and `Status` cells are intentionally blank/`Not Run`; automated checks are recorded separately above.

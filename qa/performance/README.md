@@ -39,3 +39,14 @@ Date: 2026-11-23. Same isolated local API/database; five requests per endpoint p
 | 1 | `/api/transactions?limit=20` | 5 | 0 | 8.19 | 7.91 | 8.99 | 8.99 |
 | 100 | `/api/dashboard` | 500 | 0 | 9.68 | 249.88 | 364.74 | 451.05 |
 | 100 | `/api/transactions?limit=20` | 500 | 0 | 6.28 | 102.28 | 134.61 | 196.70 |
+
+### Extended 100-concurrent-user exploratory run
+
+Date: 2026-11-23. The same isolated QA API/database handled 30 sequential requests per endpoint for each of 100 concurrent workers. This produced 3,000 samples per endpoint (6,000 total); the generated QA user and related records were removed after the run.
+
+| Concurrent users | Endpoint | Samples | Errors | Warm-up (ms) | Average (ms) | p95 (ms) | Max (ms) |
+|---:|---|---:|---:|---:|---:|---:|---:|
+| 100 | `/api/dashboard` | 3,000 | 0 | 18.90 | 185.49 | 265.05 | 439.20 |
+| 100 | `/api/transactions?limit=20` | 3,000 | 0 | 8.88 | 90.82 | 112.82 | 171.73 |
+
+This remained an exploratory local smoke run. It does not establish capacity or an SLA.
