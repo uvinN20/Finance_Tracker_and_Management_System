@@ -67,7 +67,7 @@ const deleteAccount = async (req, res, next) => {
 const transfer = async (req, res, next) => {
   try {
     const { fromAccountId, toAccountId, amount } = req.body;
-    if (!fromAccountId || !toAccountId || !amount || amount <= 0) {
+    if (!fromAccountId || !toAccountId || typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
       return res.status(400).json({ message: 'fromAccountId, toAccountId and a positive amount are required' });
     }
     if (fromAccountId === toAccountId) {

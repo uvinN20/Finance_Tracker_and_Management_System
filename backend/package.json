@@ -6,7 +6,12 @@
   "type": "commonjs",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "jest --runInBand",
+    "test:coverage": "jest --coverage --runInBand",
+    "test:integration": "jest --runInBand tests/app.integration.test.js",
+    "test:db-integration": "jest --config jest.database.config.js --runInBand",
+    "test:bdd": "cucumber-js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -15,5 +20,10 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.5.0"
+  },
+  "devDependencies": {
+    "@cucumber/cucumber": "^13.3.0",
+    "jest": "^29.7.0",
+    "supertest": "^7.1.4"
   }
 }

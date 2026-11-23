@@ -277,41 +277,43 @@ const Transactions = () => {
               ))}
             </tbody>
           </table>
-          {/* Mobile card list */}
-          <div className="md:hidden space-y-2">
-            {transactions.length === 0 && (
-              <p className="text-center text-gray-400 py-6 text-sm">No transactions found.</p>
-            )}
-            {transactions.map((t) => (
-              <div key={t._id} className="bg-white rounded-xl border shadow-sm p-3">
-                <div className="flex justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="font-medium text-sm truncate">{t.description || t.category}</div>
-                    <div className="text-xs text-gray-400">
-                      {t.category} · {new Date(t.date).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div
-                    className={`font-semibold text-sm whitespace-nowrap ${
-                      t.type === 'income' ? 'text-emerald-600' : 'text-red-500'
-                    }`}
-                  >
-                    {t.type === 'income' ? '+' : '-'}
-                    {money(t.amount)}
+        </div>
+
+        {/* Mobile card list */}
+        <div className="md:hidden space-y-2">
+          {transactions.length === 0 && (
+            <p className="text-center text-gray-400 py-6 text-sm">No transactions found.</p>
+          )}
+          {transactions.map((t) => (
+            <div key={t._id} className="bg-white rounded-xl border shadow-sm p-3">
+              <div className="flex justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-medium text-sm truncate">{t.description || t.category}</div>
+                  <div className="text-xs text-gray-400">
+                    {t.category} · {new Date(t.date).toLocaleDateString()}
                   </div>
                 </div>
-                <div className="flex justify-end gap-4 mt-2 text-xs">
-                  <button onClick={() => handleEdit(t)} className="text-brand-600 font-medium">
-                    Edit
-                  </button>
-                  <button onClick={() => handleDelete(t._id)} className="text-red-500 font-medium">
-                    Delete
-                  </button>
+                <div
+                  className={`font-semibold text-sm whitespace-nowrap ${
+                    t.type === 'income' ? 'text-emerald-600' : 'text-red-500'
+                  }`}
+                >
+                  {t.type === 'income' ? '+' : '-'}
+                  {money(t.amount)}
                 </div>
               </div>
-            ))}
-          </div>
+              <div className="flex justify-end gap-4 mt-2 text-xs">
+                <button onClick={() => handleEdit(t)} className="text-brand-600 font-medium">
+                  Edit
+                </button>
+                <button onClick={() => handleDelete(t._id)} className="text-red-500 font-medium">
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
+
 
         {pagination.totalPages > 1 && (
           <div className="flex flex-wrap justify-center gap-2 text-sm">

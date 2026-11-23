@@ -1,0 +1,355 @@
+{
+  "info": {
+    "_postman_id": "8de5ca16-4c67-4fb5-a9a8-9494a88dba42",
+    "name": "Finora API Smoke Tests",
+    "description": "Sequential API smoke flow for the Finora QA project. Uses a unique disposable QA account and checks health, registration, accounts, income transactions, and transfer balance integrity.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "cashAccountId",
+      "value": ""
+    },
+    {
+      "key": "savingsAccountId",
+      "value": ""
+    },
+    {
+      "key": "transactionId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Health check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Health endpoint returns 200', () => pm.response.to.have.status(200));",
+              "pm.test('Health status is ok', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Register disposable QA user",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "auth": {
+          "type": "noauth"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "register"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Finora QA Runner\",\n  \"email\": \"finora-qa-{{$timestamp}}@example.com\",\n  \"password\": \"FinoraQA!Test123\",\n  \"currency\": \"LKR\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Registration returns 201', () => pm.response.to.have.status(201));",
+              "var data = pm.response.json();",
+              "pm.test('Registration returns user and token', () => { pm.expect(data.token).to.be.a('string').and.not.empty; pm.expect(data.user.email).to.include('finora-qa-'); });",
+              "pm.collectionVariables.set('token', data.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Create QA savings account",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/accounts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "accounts"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"QA Savings\",\n  \"type\": \"savings\",\n  \"balance\": 0\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Savings account is created', () => pm.response.to.have.status(201));",
+              "var data = pm.response.json();",
+              "pm.collectionVariables.set('savingsAccountId', data._id);",
+              "pm.test('Account has the expected type and opening balance', () => { pm.expect(data.type).to.eql('savings'); pm.expect(data.balance).to.eql(0); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Get accounts and capture default Cash account",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/accounts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "accounts"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Accounts endpoint returns 200', () => pm.response.to.have.status(200));",
+              "var data = pm.response.json();",
+              "var cash = data.accounts.find((account) => account.name === 'Cash');",
+              "pm.test('Registration created a default Cash account', () => pm.expect(cash, 'Cash account').to.exist);",
+              "pm.collectionVariables.set('cashAccountId', cash._id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Add LKR 100 income",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/transactions",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transactions"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accountId\": \"{{cashAccountId}}\",\n  \"type\": \"income\",\n  \"amount\": 100,\n  \"category\": \"Salary\",\n  \"description\": \"Finora QA income check\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Income transaction is created', () => pm.response.to.have.status(201));",
+              "var data = pm.response.json();",
+              "pm.collectionVariables.set('transactionId', data._id);",
+              "pm.test('Created transaction matches the request', () => { pm.expect(data.type).to.eql('income'); pm.expect(data.amount).to.eql(100); pm.expect(data.category).to.eql('Salary'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Verify income transaction is listed",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/transactions?type=income&search=Finora%20QA%20income%20check",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "transactions"
+          ],
+          "query": [
+            {
+              "key": "type",
+              "value": "income"
+            },
+            {
+              "key": "search",
+              "value": "Finora QA income check"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Transaction list returns 200', () => pm.response.to.have.status(200));",
+              "var data = pm.response.json();",
+              "pm.test('Created income appears in the filtered list', () => pm.expect(data.transactions.some((item) => item._id === pm.collectionVariables.get('transactionId'))).to.eql(true));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Transfer LKR 30 from Cash to Savings",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/accounts/transfer",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "accounts",
+            "transfer"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fromAccountId\": \"{{cashAccountId}}\",\n  \"toAccountId\": \"{{savingsAccountId}}\",\n  \"amount\": 30\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Transfer succeeds', () => pm.response.to.have.status(200));",
+              "var data = pm.response.json();",
+              "pm.test('Transfer updates each account balance', () => { pm.expect(data.fromAccount.balance).to.eql(70); pm.expect(data.toAccount.balance).to.eql(30); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Verify total wealth is unchanged",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/accounts",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "accounts"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Accounts verification returns 200', () => pm.response.to.have.status(200));",
+              "var data = pm.response.json();",
+              "var cash = data.accounts.find((account) => account._id === pm.collectionVariables.get('cashAccountId'));",
+              "var savings = data.accounts.find((account) => account._id === pm.collectionVariables.get('savingsAccountId'));",
+              "pm.test('Balances are Cash 70 and Savings 30', () => { pm.expect(cash.balance).to.eql(70); pm.expect(savings.balance).to.eql(30); });",
+              "pm.test('Transfer does not change total balance from 100', () => pm.expect(data.total).to.eql(100));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

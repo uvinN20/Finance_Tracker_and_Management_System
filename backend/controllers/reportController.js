@@ -35,8 +35,11 @@ const summarize = async (userId, startDate, endDate) => {
 const monthlyReport = async (req, res, next) => {
   try {
     const now = new Date();
-    const month = parseInt(req.query.month, 10) || now.getMonth() + 1;
-    const year = parseInt(req.query.year, 10) || now.getFullYear();
+    const month = req.query.month === undefined ? now.getMonth() + 1 : Number(req.query.month);
+    const year = req.query.year === undefined ? now.getFullYear() : Number(req.query.year);
+    if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < 2000 || year > 2100) {
+      return res.status(400).json({ message: 'month must be 1-12 and year must be between 2000 and 2100' });
+    }
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 1);
 
@@ -50,7 +53,10 @@ const monthlyReport = async (req, res, next) => {
 // @route GET /api/reports/yearly?year=
 const yearlyReport = async (req, res, next) => {
   try {
-    const year = parseInt(req.query.year, 10) || new Date().getFullYear();
+    const year = req.query.year === undefined ? new Date().getFullYear() : Number(req.query.year);
+    if (!Number.isInteger(year) || year < 2000 || year > 2100) {
+      return res.status(400).json({ message: 'year must be between 2000 and 2100' });
+    }
     const startDate = new Date(year, 0, 1);
     const endDate = new Date(year + 1, 0, 1);
 

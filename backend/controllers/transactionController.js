@@ -1,6 +1,11 @@
 const Transaction = require('../models/Transaction');
+const mongoose = require('mongoose');
 const Account = require('../models/Account');
 
+const parseAccountId = (value) => {
+  if (typeof value !== 'string' || !/^[a-f\d]{24}$/i.test(value)) return null;
+  return new mongoose.Types.ObjectId(value);
+};
 const applyBalanceChange = async (accountId, type, amount, sign = 1) => {
   const account = await Account.findById(accountId);
   if (!account) throw new Error('Account not found');
@@ -14,22 +19,29 @@ const createTransaction = async (req, res, next) => {
   try {
     const { accountId, type, amount, category, description, date, paymentMethod } = req.body;
 
-    if (!accountId || !type || !amount || !category) {
+    if (!accountId || !type || amount === undefined || typeof category !== 'string' || !category.trim()) {
       return res.status(400).json({ message: 'accountId, type, amount and category are required' });
+    }
+    const safeAccountId = parseAccountId(accountId);
+    if (!safeAccountId) {
+      return res.status(400).json({ message: 'accountId must be a valid account ID' });
     }
     if (!['income', 'expense'].includes(type)) {
       return res.status(400).json({ message: 'type must be income or expense' });
     }
-    if (amount <= 0) {
+    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
       return res.status(400).json({ message: 'amount must be greater than 0' });
     }
+    if (date !== undefined && Number.isNaN(new Date(date).getTime())) {
+      return res.status(400).json({ message: 'date must be valid' });
+    }
 
-    const account = await Account.findOne({ _id: accountId, userId: req.user._id });
+    const account = await Account.findOne({ _id: safeAccountId, userId: req.user._id });
     if (!account) return res.status(404).json({ message: 'Account not found' });
 
     const transaction = await Transaction.create({
       userId: req.user._id,
-      accountId,
+      accountId: safeAccountId,
       type,
       amount,
       category,
@@ -38,7 +50,7 @@ const createTransaction = async (req, res, next) => {
       paymentMethod,
     });
 
-    await applyBalanceChange(accountId, type, amount, 1);
+    await applyBalanceChange(safeAccountId, type, amount, 1);
 
     res.status(201).json(transaction);
   } catch (err) {
@@ -112,11 +124,32 @@ const updateTransaction = async (req, res, next) => {
     const transaction = await Transaction.findOne({ _id: req.params.id, userId: req.user._id });
     if (!transaction) return res.status(404).json({ message: 'Transaction not found' });
 
-    // Reverse the old effect on the account balance first
+    const { accountId, type, amount, category, description, date, paymentMethod } = req.body;
+    if (type !== undefined && !['income', 'expense'].includes(type)) {
+      return res.status(400).json({ message: 'type must be income or expense' });
+    }
+    if (amount !== undefined && (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0)) {
+      return res.status(400).json({ message: 'amount must be greater than 0' });
+    }
+    if (category !== undefined && (typeof category !== 'string' || !category.trim())) {
+      return res.status(400).json({ message: 'category must be a non-empty string' });
+    }
+    if (date !== undefined && Number.isNaN(new Date(date).getTime())) {
+      return res.status(400).json({ message: 'date must be valid' });
+    }
+    const safeAccountId = accountId === undefined ? undefined : parseAccountId(accountId);
+    if (accountId !== undefined && !safeAccountId) {
+      return res.status(400).json({ message: 'accountId must be a valid account ID' });
+    }
+    if (accountId !== undefined) {
+      const targetAccount = await Account.findOne({ _id: safeAccountId, userId: req.user._id });
+      if (!targetAccount) return res.status(404).json({ message: 'Account not found' });
+    }
+
+    // Reverse the old effect only after the new values and target ownership are valid.
     await applyBalanceChange(transaction.accountId, transaction.type, transaction.amount, -1);
 
-    const { accountId, type, amount, category, description, date, paymentMethod } = req.body;
-    if (accountId !== undefined) transaction.accountId = accountId;
+    if (accountId !== undefined) transaction.accountId = safeAccountId;
     if (type !== undefined) transaction.type = type;
     if (amount !== undefined) transaction.amount = amount;
     if (category !== undefined) transaction.category = category;
