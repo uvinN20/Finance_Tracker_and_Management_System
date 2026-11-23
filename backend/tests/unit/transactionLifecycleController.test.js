@@ -3,12 +3,13 @@ jest.mock('../../models/Account');
 
 const Transaction = require('../../models/Transaction');
 const Account = require('../../models/Account');
+const mongoose = require('mongoose');
 const { updateTransaction, deleteTransaction } = require('../../controllers/transactionController');
 
 const userId = 'user-1';
 const transactionId = 'transaction-1';
-const fromAccountId = 'account-1';
-const toAccountId = 'account-2';
+const fromAccountId = '000000000000000000000001';
+const toAccountId = '000000000000000000000002';
 
 function response() {
   return {
@@ -108,7 +109,7 @@ describe('updateTransaction', () => {
 
     await updateTransaction(req, res, next);
 
-    expect(Account.findOne).toHaveBeenCalledWith({ _id: toAccountId, userId });
+    expect(Account.findOne).toHaveBeenCalledWith({ _id: new mongoose.Types.ObjectId(toAccountId), userId });
     expect(res.statusCode).toBe(404);
     expect(res.body).toEqual({ message: 'Account not found' });
     expect(Account.findById).not.toHaveBeenCalled();

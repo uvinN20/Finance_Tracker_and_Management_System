@@ -6,7 +6,7 @@ const Account = require('../../models/Account');
 const { createTransaction, getTransactions, getTransactionById } = require('../../controllers/transactionController');
 
 const userId = 'user-1';
-const accountId = 'account-1';
+const accountId = '000000000000000000000001';
 
 function response() {
   return {

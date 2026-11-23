@@ -1,8 +1,11 @@
 const Transaction = require('../models/Transaction');
+const mongoose = require('mongoose');
 const Account = require('../models/Account');
 
-const isSafeAccountId = (value) => typeof value === 'string' && value.length > 0;
-
+const parseAccountId = (value) => {
+  if (typeof value !== 'string' || !/^[a-f\d]{24}$/i.test(value)) return null;
+  return new mongoose.Types.ObjectId(value);
+};
 const applyBalanceChange = async (accountId, type, amount, sign = 1) => {
   const account = await Account.findById(accountId);
   if (!account) throw new Error('Account not found');
@@ -19,7 +22,8 @@ const createTransaction = async (req, res, next) => {
     if (!accountId || !type || amount === undefined || typeof category !== 'string' || !category.trim()) {
       return res.status(400).json({ message: 'accountId, type, amount and category are required' });
     }
-    if (!isSafeAccountId(accountId)) {
+    const safeAccountId = parseAccountId(accountId);
+    if (!safeAccountId) {
       return res.status(400).json({ message: 'accountId must be a valid account ID' });
     }
     if (!['income', 'expense'].includes(type)) {
@@ -32,12 +36,12 @@ const createTransaction = async (req, res, next) => {
       return res.status(400).json({ message: 'date must be valid' });
     }
 
-    const account = await Account.findOne({ _id: accountId, userId: req.user._id });
+    const account = await Account.findOne({ _id: safeAccountId, userId: req.user._id });
     if (!account) return res.status(404).json({ message: 'Account not found' });
 
     const transaction = await Transaction.create({
       userId: req.user._id,
-      accountId,
+      accountId: safeAccountId,
       type,
       amount,
       category,
@@ -46,7 +50,7 @@ const createTransaction = async (req, res, next) => {
       paymentMethod,
     });
 
-    await applyBalanceChange(accountId, type, amount, 1);
+    await applyBalanceChange(safeAccountId, type, amount, 1);
 
     res.status(201).json(transaction);
   } catch (err) {
@@ -133,18 +137,19 @@ const updateTransaction = async (req, res, next) => {
     if (date !== undefined && Number.isNaN(new Date(date).getTime())) {
       return res.status(400).json({ message: 'date must be valid' });
     }
-    if (accountId !== undefined && !isSafeAccountId(accountId)) {
+    const safeAccountId = accountId === undefined ? undefined : parseAccountId(accountId);
+    if (accountId !== undefined && !safeAccountId) {
       return res.status(400).json({ message: 'accountId must be a valid account ID' });
     }
     if (accountId !== undefined) {
-      const targetAccount = await Account.findOne({ _id: accountId, userId: req.user._id });
+      const targetAccount = await Account.findOne({ _id: safeAccountId, userId: req.user._id });
       if (!targetAccount) return res.status(404).json({ message: 'Account not found' });
     }
 
     // Reverse the old effect only after the new values and target ownership are valid.
     await applyBalanceChange(transaction.accountId, transaction.type, transaction.amount, -1);
 
-    if (accountId !== undefined) transaction.accountId = accountId;
+    if (accountId !== undefined) transaction.accountId = safeAccountId;
     if (type !== undefined) transaction.type = type;
     if (amount !== undefined) transaction.amount = amount;
     if (category !== undefined) transaction.category = category;
