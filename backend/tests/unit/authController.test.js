@@ -53,6 +53,28 @@ describe('register', () => {
     expect(User.findOne).not.toHaveBeenCalled();
   });
 
+  test.each(['not-an-email', 'qa@', '@example.com'])('rejects malformed email %s', async (email) => {
+    req.body.email = email;
+
+    await register(req, res, next);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ message: 'Email must be valid' });
+    expect(User.findOne).not.toHaveBeenCalled();
+    expect(User.create).not.toHaveBeenCalled();
+  });
+
+  test('rejects passwords shorter than six characters before database access', async () => {
+    req.body.password = 'abcde';
+
+    await register(req, res, next);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ message: 'Password must be at least 6 characters' });
+    expect(User.findOne).not.toHaveBeenCalled();
+    expect(User.create).not.toHaveBeenCalled();
+  });
+
   test('rejects an already registered email using lowercase lookup', async () => {
     User.findOne.mockResolvedValue({ _id: 'existing-user' });
 
@@ -73,7 +95,7 @@ describe('register', () => {
     await register(req, res, next);
 
     expect(User.create).toHaveBeenCalledWith({
-      name: 'QA User', email: 'QA@example.com', password: 'secret123', currency: 'LKR',
+      name: 'QA User', email: 'qa@example.com', password: 'secret123', currency: 'LKR',
     });
     expect(Account.create).toHaveBeenCalledWith({ userId, name: 'Cash', type: 'cash', balance: 0 });
     expect(jwt.sign).toHaveBeenCalledWith({ id: userId }, 'unit-test-secret', { expiresIn: '7d' });
