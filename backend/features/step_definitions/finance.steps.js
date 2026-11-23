@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const { randomUUID } = require('node:crypto');
 require('dotenv').config();
 const mongoose = require('mongoose');
 const { Before, BeforeAll, After, AfterAll, Given, When, Then, setWorldConstructor } = require('@cucumber/cucumber');
@@ -36,7 +37,7 @@ BeforeAll(async function () {
 });
 
 Before(async function () {
-  const unique = Date.now() + '-' + Math.random().toString(16).slice(2);
+  const unique = randomUUID();
   this.testEmail = 'cucumber-' + unique + '@example.test';
   const auth = await this.request('/auth/register', {
     method: 'POST',

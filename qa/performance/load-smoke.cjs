@@ -1,10 +1,11 @@
+const { randomBytes, randomUUID } = require('node:crypto');
 const { performance } = require('node:perf_hooks');
 const path = require('node:path');
 
 const baseUrl = (process.env.FINORA_API_URL || 'http://127.0.0.1:5000/api').replace(/\/$/, '');
 const concurrency = Math.max(1, Number.parseInt(process.env.LOAD_CONCURRENCY || '10', 10));
 const requestsPerEndpoint = Math.max(1, Number.parseInt(process.env.LOAD_REQUESTS_PER_ENDPOINT || '5', 10));
-const email = `finora-load-qa-${Date.now()}-${Math.random().toString(16).slice(2)}@example.test`;
+const email = 'finora-load-qa-' + randomUUID() + '@example.test';
 
 async function send(pathname, token, expectedStatus = 200) {
   const start = performance.now();
@@ -63,10 +64,11 @@ async function cleanup() {
 (async () => {
   let failure;
   try {
-    const registration = await fetch(`${baseUrl}/auth/register`, {
+    const loadPassword = randomBytes(24).toString('base64url');
+    const registration = await fetch(baseUrl + '/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'Finora Load QA', email, password: 'FinoraQA!123', currency: 'LKR' }),
+      body: JSON.stringify({ name: 'Finora Load QA', email, password: loadPassword, currency: 'LKR' }),
     });
     const auth = await registration.json();
     if (registration.status !== 201 || !auth.token) throw new Error(`QA registration failed with HTTP ${registration.status}`);
@@ -104,4 +106,7 @@ async function cleanup() {
     }
   }
   if (failure) process.exitCode = 1;
-})();
+})().catch((error) => {
+  console.error(error.stack || error);
+  process.exitCode = 1;
+});

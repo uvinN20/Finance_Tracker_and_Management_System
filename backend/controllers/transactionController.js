@@ -1,6 +1,9 @@
 const Transaction = require('../models/Transaction');
 const Account = require('../models/Account');
 
+const isValidAccountId = (value) =>
+  typeof value === 'string' && /^[a-f\d]{24}$/i.test(value);
+
 const applyBalanceChange = async (accountId, type, amount, sign = 1) => {
   const account = await Account.findById(accountId);
   if (!account) throw new Error('Account not found');
@@ -16,6 +19,9 @@ const createTransaction = async (req, res, next) => {
 
     if (!accountId || !type || amount === undefined || typeof category !== 'string' || !category.trim()) {
       return res.status(400).json({ message: 'accountId, type, amount and category are required' });
+    }
+    if (!isValidAccountId(accountId)) {
+      return res.status(400).json({ message: 'accountId must be a valid account ID' });
     }
     if (!['income', 'expense'].includes(type)) {
       return res.status(400).json({ message: 'type must be income or expense' });
@@ -127,6 +133,9 @@ const updateTransaction = async (req, res, next) => {
     }
     if (date !== undefined && Number.isNaN(new Date(date).getTime())) {
       return res.status(400).json({ message: 'date must be valid' });
+    }
+    if (accountId !== undefined && !isValidAccountId(accountId)) {
+      return res.status(400).json({ message: 'accountId must be a valid account ID' });
     }
     if (accountId !== undefined) {
       const targetAccount = await Account.findOne({ _id: accountId, userId: req.user._id });

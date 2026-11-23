@@ -1,12 +1,13 @@
 const assert = require('node:assert/strict');
+const { randomUUID } = require('node:crypto');
 const { Builder, Browser, By, until } = require('selenium-webdriver');
 const edge = require('selenium-webdriver/edge');
 
 const baseUrl = (process.env.FINORA_BASE_URL || 'http://localhost:5173').replace(/\/$/, '');
 const unique = Date.now();
-const testEmail = `finora-selenium-${unique}@example.com`;
+const testEmail = 'finora-selenium-' + unique + '-' + randomUUID() + '@example.com';
 const testDescription = `Finora Selenium smoke ${unique}`;
-const testPassword = 'FinoraQA!Test123';
+const testPassword = randomUUID() + 'A1!';
 
 async function visibleText(driver, locator, timeout = 15000) {
   const element = await driver.wait(until.elementLocated(locator), timeout);
@@ -74,4 +75,8 @@ async function visibleText(driver, locator, timeout = 15000) {
   } finally {
     await driver.quit();
   }
-})();
+})().catch((error) => {
+  console.error('FAIL: Finora Selenium smoke flow');
+  console.error(error.stack || error);
+  process.exitCode = 1;
+});
