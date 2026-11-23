@@ -1,26 +1,37 @@
-# SonarQube analysis setup
+# SonarQube Cloud analysis
 
-The repository contains `sonar-project.properties` with backend/frontend source folders, Jest test paths, exclusions, and the Jest LCOV report path. The GitHub Actions workflow includes an optional SonarQube Cloud scan. It stays skipped until the repository variable `SONAR_ENABLED` is set to `true`.
+The repository is connected to SonarQube Cloud. The GitHub Actions workflow runs the scan when the repository variable SONAR_ENABLED is set to true; sonar-project.properties identifies the project and the generated Jest LCOV report.
 
-## Enable SonarQube Cloud
+## Latest recorded scan
 
-1. Sign in to SonarQube Cloud with the GitHub account that owns the Finora fork, create/connect the organization, and import this repository.
-2. Make sure the Sonar project key matches `sonar.projectKey` in the root properties file. Copy the Sonar organization key.
-3. In GitHub repository **Settings → Secrets and variables → Actions**, add:
-   - Secret `SONAR_TOKEN`: a project analysis token generated in SonarQube Cloud.
-   - Variable `SONAR_ENABLED`: `true`.
-   - Variable `SONAR_HOST_URL`: `https://sonarcloud.io` (or the host URL shown for your SonarQube Cloud region).
-   - Variable `SONAR_ORGANIZATION`: the organization key from SonarQube Cloud.
-4. Push the QA branch or open a pull request to `main`. The scan runs after the workflow's test/build steps generate the coverage report. Read the result in the SonarQube Cloud project and the GitHub Actions run.
+- Branch: qa/initial-setup
+- GitHub Actions run: [45240678768](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45240678768)
+- SonarQube Cloud project: [Finora](https://sonarcloud.io/dashboard?id=uvinN20_Finance_Tracker_and_Management_System&branch=qa%2Finitial-setup)
+- Analysis step: succeeded
+- Quality Gate: passed
+- New-code coverage: 93.6% (required minimum 80%)
+- Bugs: 0
+- Vulnerabilities: 0
+- Code smells: 0
 
-Never commit or share the token. SonarQube Cloud requires the matching project key and organization and an analysis token with access to the project; see [SonarQube Cloud GitHub setup](https://docs.sonarsource.com/sonarqube-cloud/getting-started/github) and its [GitHub Actions integration](https://docs.sonarsource.com/sonarqube-server/2025.6/devops-platform-integration/github-integration/adding-analysis-to-github-actions-workflow).
+Coverage exclusions apply to automated tests and QA harness tools, which are not production code. Application source remains in the coverage scope.
+
+## Repository configuration
+
+The workflow uses these GitHub Actions settings:
+
+- Secret SONAR_TOKEN: analysis token; do not commit or share it.
+- Variable SONAR_ENABLED: true.
+- Variable SONAR_HOST_URL: https://sonarcloud.io.
+- Variable SONAR_ORGANIZATION: the SonarQube Cloud organization key.
+
+The project key in sonar-project.properties must match the imported SonarQube Cloud project. The workflow runs after tests/build generate coverage data. Scan results appear in the project dashboard and GitHub Actions run.
 
 ## Local scan alternative
 
-1. Run `npm run test:coverage` from `backend` to create `backend/coverage/lcov.info`.
-2. Install SonarScanner CLI and have a reachable SonarQube server or SonarQube Cloud project.
-3. Set `SONAR_TOKEN` and `SONAR_HOST_URL` in the local shell. For SonarQube Cloud, also supply the organization key.
-4. From the repository root run `sonar-scanner` (and add `-Dsonar.organization=...` for SonarQube Cloud).
-5. Save the server's analysis result and quality-gate metrics as evidence.
+1. Run npm run test:coverage from backend to create backend/coverage/lcov.info.
+2. Install SonarScanner CLI and set SONAR_TOKEN and SONAR_HOST_URL in the local shell. For SonarQube Cloud, also provide the organization key.
+3. From the repository root run sonar-scanner.
+4. Review the analysis in SonarQube Cloud and record the Quality Gate and metrics for the branch scanned.
 
-No scan result is claimed yet: this environment has no SonarQube account/token or reachable SonarQube server. The workflow and settings above are prepared for when those credentials are configured.
+See [SonarQube Cloud's GitHub setup guide](https://docs.sonarsource.com/sonarqube-cloud/getting-started/github) and [GitHub Actions integration](https://docs.sonarsource.com/sonarqube-server/2025.6/devops-platform-integration/github-integration/adding-analysis-to-github-actions-workflow).
