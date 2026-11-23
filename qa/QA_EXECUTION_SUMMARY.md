@@ -49,7 +49,7 @@ See [`defect-log.md`](defect-log.md) for reproduction and regression evidence.
 
 ## Remaining external verification
 
-- GitHub Actions run [45153054231](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45153054231) completed successfully on commit `7e64705`. Backend unit/API integration, MongoDB-backed integration, Cucumber, Postman, and frontend production build steps passed. The optional SonarQube Cloud step was skipped because the repository credentials/settings are not configured.
+- GitHub Actions run [45183656469](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45183656469) completed successfully on commit `31acc8a`. Backend unit/API integration, MongoDB-backed integration, Cucumber, Postman, and frontend production build steps passed. The optional SonarQube Cloud step was skipped because the repository credentials/settings are not configured.
 - SonarQube workflow configuration is ready, but no scan result is available until a Sonar project is configured and its secrets/variables are added to the repository.
 - All four proposed JMeter user profiles ran as short local smoke tests; they are not a capacity benchmark, and production-like data/hardware plus a sustained load were not tested.
 - The original 60-case design file remains unchanged. In the results copy, TC-AUTH-01 was executed in the browser; the remaining 59 are API-automated checks rather than hands-on manual UI tests.
