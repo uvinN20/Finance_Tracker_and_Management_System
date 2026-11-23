@@ -109,7 +109,7 @@
             "type": "text/javascript",
             "exec": [
               "pm.test('Registration returns 201', () => pm.response.to.have.status(201));",
-              "const data = pm.response.json();",
+              "var data = pm.response.json();",
               "pm.test('Registration returns user and token', () => { pm.expect(data.token).to.be.a('string').and.not.empty; pm.expect(data.user.email).to.include('finora-qa-'); });",
               "pm.collectionVariables.set('token', data.token);"
             ]
@@ -153,7 +153,7 @@
             "type": "text/javascript",
             "exec": [
               "pm.test('Savings account is created', () => pm.response.to.have.status(201));",
-              "const data = pm.response.json();",
+              "var data = pm.response.json();",
               "pm.collectionVariables.set('savingsAccountId', data._id);",
               "pm.test('Account has the expected type and opening balance', () => { pm.expect(data.type).to.eql('savings'); pm.expect(data.balance).to.eql(0); });"
             ]
@@ -183,8 +183,8 @@
             "type": "text/javascript",
             "exec": [
               "pm.test('Accounts endpoint returns 200', () => pm.response.to.have.status(200));",
-              "const data = pm.response.json();",
-              "const cash = data.accounts.find((account) => account.name === 'Cash');",
+              "var data = pm.response.json();",
+              "var cash = data.accounts.find((account) => account.name === 'Cash');",
               "pm.test('Registration created a default Cash account', () => pm.expect(cash, 'Cash account').to.exist);",
               "pm.collectionVariables.set('cashAccountId', cash._id);"
             ]
@@ -228,7 +228,7 @@
             "type": "text/javascript",
             "exec": [
               "pm.test('Income transaction is created', () => pm.response.to.have.status(201));",
-              "const data = pm.response.json();",
+              "var data = pm.response.json();",
               "pm.collectionVariables.set('transactionId', data._id);",
               "pm.test('Created transaction matches the request', () => { pm.expect(data.type).to.eql('income'); pm.expect(data.amount).to.eql(100); pm.expect(data.category).to.eql('Salary'); });"
             ]
@@ -243,13 +243,10 @@
         "header": [],
         "url": {
           "raw": "{{baseUrl}}/transactions?type=income&search=Finora%20QA%20income%20check",
-          "protocol": "http",
           "host": [
-            "localhost"
+            "{{baseUrl}}"
           ],
-          "port": "5000",
           "path": [
-            "api",
             "transactions"
           ],
           "query": [
@@ -271,7 +268,7 @@
             "type": "text/javascript",
             "exec": [
               "pm.test('Transaction list returns 200', () => pm.response.to.have.status(200));",
-              "const data = pm.response.json();",
+              "var data = pm.response.json();",
               "pm.test('Created income appears in the filtered list', () => pm.expect(data.transactions.some((item) => item._id === pm.collectionVariables.get('transactionId'))).to.eql(true));"
             ]
           }
@@ -315,7 +312,7 @@
             "type": "text/javascript",
             "exec": [
               "pm.test('Transfer succeeds', () => pm.response.to.have.status(200));",
-              "const data = pm.response.json();",
+              "var data = pm.response.json();",
               "pm.test('Transfer updates each account balance', () => { pm.expect(data.fromAccount.balance).to.eql(70); pm.expect(data.toAccount.balance).to.eql(30); });"
             ]
           }
@@ -344,9 +341,9 @@
             "type": "text/javascript",
             "exec": [
               "pm.test('Accounts verification returns 200', () => pm.response.to.have.status(200));",
-              "const data = pm.response.json();",
-              "const cash = data.accounts.find((account) => account._id === pm.collectionVariables.get('cashAccountId'));",
-              "const savings = data.accounts.find((account) => account._id === pm.collectionVariables.get('savingsAccountId'));",
+              "var data = pm.response.json();",
+              "var cash = data.accounts.find((account) => account._id === pm.collectionVariables.get('cashAccountId'));",
+              "var savings = data.accounts.find((account) => account._id === pm.collectionVariables.get('savingsAccountId'));",
               "pm.test('Balances are Cash 70 and Savings 30', () => { pm.expect(cash.balance).to.eql(70); pm.expect(savings.balance).to.eql(30); });",
               "pm.test('Transfer does not change total balance from 100', () => pm.expect(data.total).to.eql(100));"
             ]

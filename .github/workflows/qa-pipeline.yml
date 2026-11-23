@@ -1,0 +1,107 @@
+name: Finora QA
+
+on:
+  push:
+    branches: [main, "qa/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  backend-and-frontend:
+    runs-on: ubuntu-latest
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 }).ok'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Run backend unit and API integration tests with coverage
+        working-directory: backend
+        env:
+          NODE_ENV: test
+          JWT_SECRET: finora-ci-only-secret
+          MONGO_URI: mongodb://127.0.0.1:27017/finora_ci
+        run: npm run test:coverage
+
+      - name: Run MongoDB-backed API integration tests
+        working-directory: backend
+        env:
+          NODE_ENV: test
+          JWT_SECRET: finora-ci-only-secret
+          MONGO_URI: mongodb://127.0.0.1:27017/finora_ci
+        run: npm run test:db-integration
+
+      - name: Start API for BDD scenarios
+        working-directory: backend
+        env:
+          NODE_ENV: test
+          JWT_SECRET: finora-ci-only-secret
+          MONGO_URI: mongodb://127.0.0.1:27017/finora_ci
+          PORT: 5000
+        run: |
+          node server.js > ../finora-api.log 2>&1 &
+          echo $! > /tmp/finora-api.pid
+          for attempt in {1..30}; do
+            if curl --silent --fail http://127.0.0.1:5000/api/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat ../finora-api.log
+          exit 1
+
+      - name: Run Cucumber BDD scenarios
+        working-directory: backend
+        env:
+          FINORA_API_URL: http://127.0.0.1:5000/api
+          MONGO_URI: mongodb://127.0.0.1:27017/finora_ci
+        run: npm run test:bdd
+
+      - name: Run Postman API smoke collection
+        run: npx --yes newman@6.2.1 run "qa/postman/Finora API Smoke Tests.postman_collection.json"
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend for production
+        working-directory: frontend
+        run: npm run build
+
+      - name: SonarQube Cloud analysis
+        if: ${{ vars.SONAR_ENABLED == 'true' }}
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+      - name: Upload coverage and API logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: finora-qa-evidence
+          path: |
+            backend/coverage/
+            finora-api.log
+          if-no-files-found: ignore

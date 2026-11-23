@@ -38,15 +38,29 @@ const getGoals = async (req, res, next) => {
 const createGoal = async (req, res, next) => {
   try {
     const { name, targetAmount, currentAmount, targetDate } = req.body;
-    if (!name || !targetAmount) {
+    const normalizedName = typeof name === 'string' ? name.trim() : '';
+    if (!normalizedName || targetAmount === undefined) {
       return res.status(400).json({ message: 'name and targetAmount are required' });
+    }
+    if (typeof targetAmount !== 'number' || !Number.isFinite(targetAmount) || targetAmount <= 0) {
+      return res.status(400).json({ message: 'targetAmount must be a positive number' });
+    }
+    if (currentAmount !== undefined && (typeof currentAmount !== 'number' || !Number.isFinite(currentAmount) || currentAmount < 0)) {
+      return res.status(400).json({ message: 'currentAmount must be a non-negative number' });
+    }
+    let normalizedTargetDate;
+    if (targetDate !== undefined && targetDate !== null && targetDate !== '') {
+      normalizedTargetDate = new Date(targetDate);
+      if (Number.isNaN(normalizedTargetDate.getTime())) {
+        return res.status(400).json({ message: 'targetDate must be a valid date' });
+      }
     }
     const goal = await Goal.create({
       userId: req.user._id,
-      name,
+      name: normalizedName,
       targetAmount,
-      currentAmount: currentAmount || 0,
-      targetDate,
+      currentAmount: currentAmount === undefined ? 0 : currentAmount,
+      targetDate: normalizedTargetDate,
     });
     res.status(201).json(decorate(goal));
   } catch (err) {
@@ -60,10 +74,31 @@ const updateGoal = async (req, res, next) => {
     if (!goal) return res.status(404).json({ message: 'Goal not found' });
 
     const { name, targetAmount, currentAmount, targetDate } = req.body;
-    if (name !== undefined) goal.name = name;
-    if (targetAmount !== undefined) goal.targetAmount = targetAmount;
-    if (currentAmount !== undefined) goal.currentAmount = currentAmount;
-    if (targetDate !== undefined) goal.targetDate = targetDate;
+    if (name !== undefined) {
+      if (typeof name !== 'string' || !name.trim()) {
+        return res.status(400).json({ message: 'name must be a non-empty string' });
+      }
+      goal.name = name.trim();
+    }
+    if (targetAmount !== undefined) {
+      if (typeof targetAmount !== 'number' || !Number.isFinite(targetAmount) || targetAmount <= 0) {
+        return res.status(400).json({ message: 'targetAmount must be a positive number' });
+      }
+      goal.targetAmount = targetAmount;
+    }
+    if (currentAmount !== undefined) {
+      if (typeof currentAmount !== 'number' || !Number.isFinite(currentAmount) || currentAmount < 0) {
+        return res.status(400).json({ message: 'currentAmount must be a non-negative number' });
+      }
+      goal.currentAmount = currentAmount;
+    }
+    if (targetDate !== undefined) {
+      const parsedTargetDate = targetDate === null || targetDate === '' ? undefined : new Date(targetDate);
+      if (parsedTargetDate && Number.isNaN(parsedTargetDate.getTime())) {
+        return res.status(400).json({ message: 'targetDate must be a valid date' });
+      }
+      goal.targetDate = parsedTargetDate;
+    }
 
     await goal.save();
     res.json(decorate(goal));
@@ -78,7 +113,9 @@ const contributeToGoal = async (req, res, next) => {
     const goal = await Goal.findOne({ _id: req.params.id, userId: req.user._id });
     if (!goal) return res.status(404).json({ message: 'Goal not found' });
     const { amount } = req.body;
-    if (!amount || amount <= 0) return res.status(400).json({ message: 'amount must be positive' });
+    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
+      return res.status(400).json({ message: 'amount must be a positive number' });
+    }
 
     goal.currentAmount += amount;
     await goal.save();

@@ -64,14 +64,24 @@ const getBudgets = async (req, res, next) => {
 const createOrUpdateBudget = async (req, res, next) => {
   try {
     const { category, amount, month, year } = req.body;
-    if (!category || amount === undefined || !month || !year) {
+    const normalizedCategory = typeof category === 'string' ? category.trim() : '';
+    if (!normalizedCategory || amount === undefined || !month || !year) {
       return res.status(400).json({ message: 'category, amount, month and year are required' });
+    }
+    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount < 0) {
+      return res.status(400).json({ message: 'amount must be a number greater than or equal to 0' });
+    }
+    if (!Number.isInteger(month) || month < 1 || month > 12) {
+      return res.status(400).json({ message: 'month must be an integer between 1 and 12' });
+    }
+    if (!Number.isInteger(year) || year < 1) {
+      return res.status(400).json({ message: 'year must be a positive integer' });
     }
 
     const budget = await Budget.findOneAndUpdate(
-      { userId: req.user._id, category, month, year },
+      { userId: req.user._id, category: normalizedCategory, month, year },
       { $set: { amount } },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: true }
     );
 
     res.status(201).json(budget);

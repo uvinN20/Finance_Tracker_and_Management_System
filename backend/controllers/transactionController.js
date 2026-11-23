@@ -14,14 +14,17 @@ const createTransaction = async (req, res, next) => {
   try {
     const { accountId, type, amount, category, description, date, paymentMethod } = req.body;
 
-    if (!accountId || !type || !amount || !category) {
+    if (!accountId || !type || amount === undefined || typeof category !== 'string' || !category.trim()) {
       return res.status(400).json({ message: 'accountId, type, amount and category are required' });
     }
     if (!['income', 'expense'].includes(type)) {
       return res.status(400).json({ message: 'type must be income or expense' });
     }
-    if (amount <= 0) {
+    if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
       return res.status(400).json({ message: 'amount must be greater than 0' });
+    }
+    if (date !== undefined && Number.isNaN(new Date(date).getTime())) {
+      return res.status(400).json({ message: 'date must be valid' });
     }
 
     const account = await Account.findOne({ _id: accountId, userId: req.user._id });
@@ -112,10 +115,27 @@ const updateTransaction = async (req, res, next) => {
     const transaction = await Transaction.findOne({ _id: req.params.id, userId: req.user._id });
     if (!transaction) return res.status(404).json({ message: 'Transaction not found' });
 
-    // Reverse the old effect on the account balance first
+    const { accountId, type, amount, category, description, date, paymentMethod } = req.body;
+    if (type !== undefined && !['income', 'expense'].includes(type)) {
+      return res.status(400).json({ message: 'type must be income or expense' });
+    }
+    if (amount !== undefined && (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0)) {
+      return res.status(400).json({ message: 'amount must be greater than 0' });
+    }
+    if (category !== undefined && (typeof category !== 'string' || !category.trim())) {
+      return res.status(400).json({ message: 'category must be a non-empty string' });
+    }
+    if (date !== undefined && Number.isNaN(new Date(date).getTime())) {
+      return res.status(400).json({ message: 'date must be valid' });
+    }
+    if (accountId !== undefined) {
+      const targetAccount = await Account.findOne({ _id: accountId, userId: req.user._id });
+      if (!targetAccount) return res.status(404).json({ message: 'Account not found' });
+    }
+
+    // Reverse the old effect only after the new values and target ownership are valid.
     await applyBalanceChange(transaction.accountId, transaction.type, transaction.amount, -1);
 
-    const { accountId, type, amount, category, description, date, paymentMethod } = req.body;
     if (accountId !== undefined) transaction.accountId = accountId;
     if (type !== undefined) transaction.type = type;
     if (amount !== undefined) transaction.amount = amount;
