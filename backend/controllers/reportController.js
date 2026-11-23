@@ -87,13 +87,26 @@ const yearlyReport = async (req, res, next) => {
 const categoryReport = async (req, res, next) => {
   try {
     const { category, startDate, endDate } = req.query;
-    if (!category) return res.status(400).json({ message: 'category is required' });
+    if (typeof category !== 'string' || !category.trim()) {
+      return res.status(400).json({ message: 'category is required' });
+    }
+    const normalizedCategory = category.trim();
 
-    const filter = { userId: req.user._id, category };
+    const filter = { userId: req.user._id, category: normalizedCategory };
     if (startDate || endDate) {
       filter.date = {};
-      if (startDate) filter.date.$gte = new Date(startDate);
-      if (endDate) filter.date.$lte = new Date(endDate);
+      if (startDate !== undefined) {
+        if (typeof startDate !== 'string' || Number.isNaN(new Date(startDate).getTime())) {
+          return res.status(400).json({ message: 'startDate must be a valid date' });
+        }
+        filter.date.$gte = new Date(startDate);
+      }
+      if (endDate !== undefined) {
+        if (typeof endDate !== 'string' || Number.isNaN(new Date(endDate).getTime())) {
+          return res.status(400).json({ message: 'endDate must be a valid date' });
+        }
+        filter.date.$lte = new Date(endDate);
+      }
     }
 
     const transactions = await Transaction.find(filter).sort({ date: -1 });

@@ -6,6 +6,7 @@ const parseAccountId = (value) => {
   if (typeof value !== 'string' || !/^[a-f\d]{24}$/i.test(value)) return null;
   return new mongoose.Types.ObjectId(value);
 };
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const applyBalanceChange = async (accountId, type, amount, sign = 1) => {
   const account = await Account.findById(accountId);
   if (!account) throw new Error('Account not found');
@@ -64,23 +65,55 @@ const getTransactions = async (req, res, next) => {
     const { type, category, startDate, endDate, search, accountId, page = 1, limit = 20, sort = '-date' } = req.query;
 
     const filter = { userId: req.user._id };
-    if (type) filter.type = type;
-    if (category) filter.category = category;
-    if (accountId) filter.accountId = accountId;
+    if (type !== undefined) {
+      if (typeof type !== 'string' || !['income', 'expense'].includes(type)) {
+        return res.status(400).json({ message: 'type must be income or expense' });
+      }
+      filter.type = type;
+    }
+    if (category !== undefined) {
+      if (typeof category !== 'string' || !category.trim()) {
+        return res.status(400).json({ message: 'category must be a non-empty string' });
+      }
+      filter.category = category.trim();
+    }
+    if (accountId !== undefined) {
+      const safeAccountId = parseAccountId(accountId);
+      if (!safeAccountId) return res.status(400).json({ message: 'accountId must be a valid account ID' });
+      filter.accountId = safeAccountId;
+    }
     if (startDate || endDate) {
       filter.date = {};
-      if (startDate) filter.date.$gte = new Date(startDate);
-      if (endDate) filter.date.$lte = new Date(endDate);
+      if (startDate !== undefined) {
+        if (typeof startDate !== 'string' || Number.isNaN(new Date(startDate).getTime())) {
+          return res.status(400).json({ message: 'startDate must be a valid date' });
+        }
+        filter.date.$gte = new Date(startDate);
+      }
+      if (endDate !== undefined) {
+        if (typeof endDate !== 'string' || Number.isNaN(new Date(endDate).getTime())) {
+          return res.status(400).json({ message: 'endDate must be a valid date' });
+        }
+        filter.date.$lte = new Date(endDate);
+      }
     }
-    if (search) {
+    if (search !== undefined) {
+      if (typeof search !== 'string' || search.length > 100) {
+        return res.status(400).json({ message: 'search must be a string of at most 100 characters' });
+      }
+      const searchPattern = new RegExp(escapeRegex(search), 'i');
       filter.$or = [
-        { description: { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } },
+        { description: searchPattern },
+        { category: searchPattern },
       ];
     }
 
-    const pageNum = Math.max(parseInt(page, 10) || 1, 1);
-    const limitNum = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100);
+    const allowedSorts = ['date', '-date', 'amount', '-amount', 'category', '-category', 'createdAt', '-createdAt'];
+    if (typeof sort !== 'string' || !allowedSorts.includes(sort)) {
+      return res.status(400).json({ message: 'sort is not supported' });
+    }
+    const pageNum = Math.max(Number.parseInt(page, 10) || 1, 1);
+    const limitNum = Math.min(Math.max(Number.parseInt(limit, 10) || 20, 1), 100);
 
     const [transactions, totalCount] = await Promise.all([
       Transaction.find(filter)

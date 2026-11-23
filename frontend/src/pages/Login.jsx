@@ -15,7 +15,7 @@ const Login = () => {
     setLoading(true);
     try {
       await login(form.email, form.password);
-      navigate('/');
+      void navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     } finally {
@@ -33,8 +33,9 @@ const Login = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label htmlFor="login-email" className="block text-sm font-medium mb-1">Email</label>
             <input
+              id="login-email"
               type="email"
               required
               className="w-full border rounded-md px-3 py-2 text-sm"
@@ -43,8 +44,9 @@ const Login = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
+            <label htmlFor="login-password" className="block text-sm font-medium mb-1">Password</label>
             <input
+              id="login-password"
               type="password"
               required
               className="w-full border rounded-md px-3 py-2 text-sm"

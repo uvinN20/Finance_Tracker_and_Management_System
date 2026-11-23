@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Budget = require('../models/Budget');
 const Transaction = require('../models/Transaction');
 
@@ -5,8 +6,8 @@ const Transaction = require('../models/Transaction');
 const getBudgets = async (req, res, next) => {
   try {
     const now = new Date();
-    const month = parseInt(req.query.month, 10) || now.getMonth() + 1;
-    const year = parseInt(req.query.year, 10) || now.getFullYear();
+    const month = Number.parseInt(req.query.month, 10) || now.getMonth() + 1;
+    const year = Number.parseInt(req.query.year, 10) || now.getFullYear();
 
     const budgets = await Budget.find({ userId: req.user._id, month, year });
 
@@ -78,8 +79,9 @@ const createOrUpdateBudget = async (req, res, next) => {
       return res.status(400).json({ message: 'year must be a positive integer' });
     }
 
+    const filter = mongoose.sanitizeFilter({ userId: req.user._id, category: normalizedCategory, month, year });
     const budget = await Budget.findOneAndUpdate(
-      { userId: req.user._id, category: normalizedCategory, month, year },
+      filter,
       { $set: { amount } },
       { upsert: true, new: true, setDefaultsOnInsert: true, runValidators: true }
     );

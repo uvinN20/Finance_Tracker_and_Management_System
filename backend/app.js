@@ -11,6 +11,7 @@ const reportRoutes = require('./routes/reportRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 const app = express();
+app.disable('x-powered-by');
 
 app.use(
   cors({

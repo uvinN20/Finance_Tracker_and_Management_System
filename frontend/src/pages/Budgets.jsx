@@ -135,8 +135,9 @@ const Budgets = () => {
           {error && <div className="bg-red-50 text-red-600 text-xs p-2 rounded mb-3">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-3 text-sm">
             <div>
-              <label className="block text-xs font-medium mb-1">Category</label>
+              <label htmlFor="budget-category" className="block text-xs font-medium mb-1">Category</label>
               <select
+                id="budget-category"
                 required
                 className="w-full border rounded-md px-3 py-1.5"
                 value={form.category}
@@ -149,8 +150,9 @@ const Budgets = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Monthly Amount</label>
+              <label htmlFor="budget-monthly-amount" className="block text-xs font-medium mb-1">Monthly Amount</label>
               <input
+                id="budget-monthly-amount"
                 type="number"
                 min="0"
                 required
@@ -159,7 +161,7 @@ const Budgets = () => {
                 onChange={(e) => setForm({ ...form, amount: e.target.value })}
               />
             </div>
-            <button className="w-full bg-brand-600 text-white rounded-md py-2 font-medium hover:bg-brand-700">
+            <button type="submit" className="w-full bg-brand-600 text-white rounded-md py-2 font-medium hover:bg-brand-700">
               Save Budget
             </button>
           </form>
@@ -202,8 +204,9 @@ const Budgets = () => {
                   {payError && <div className="bg-red-50 text-red-600 text-xs p-2 rounded">{payError}</div>}
 
                   <div>
-                    <label className="block text-xs font-medium mb-1">Amount</label>
+                    <label htmlFor={`budget-pay-amount-${b._id}`} className="block text-xs font-medium mb-1">Amount</label>
                     <input
+                      id={`budget-pay-amount-${b._id}`}
                       type="number"
                       min="0"
                       step="0.01"
@@ -215,8 +218,9 @@ const Budgets = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium mb-1">Pay from</label>
+                    <label htmlFor={`budget-pay-account-${b._id}`} className="block text-xs font-medium mb-1">Pay from</label>
                     <select
+                      id={`budget-pay-account-${b._id}`}
                       required
                       className="w-full border rounded-md px-3 py-1.5"
                       value={payForm.accountId}
@@ -231,8 +235,9 @@ const Budgets = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium mb-1">Note</label>
+                    <label htmlFor={`budget-pay-note-${b._id}`} className="block text-xs font-medium mb-1">Note</label>
                     <input
+                      id={`budget-pay-note-${b._id}`}
                       className="w-full border rounded-md px-3 py-1.5"
                       value={payForm.description}
                       onChange={(e) => setPayForm({ ...payForm, description: e.target.value })}
