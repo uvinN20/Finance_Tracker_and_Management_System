@@ -2,7 +2,15 @@
 
 The repository is connected to SonarQube Cloud. The GitHub Actions workflow runs the scan when the repository variable SONAR_ENABLED is set to true; sonar-project.properties identifies the project and the generated Jest LCOV report.
 
-## Latest recorded scan
+## Most recent PR analysis
+
+- Pull request: [#5 — Correct Finora QA CSV scenario records](https://github.com/uvinN20/Finance_Tracker_and_Management_System/pull/5), merged as `278cc687d2f124924be9342f6cd071dcc8e807cb`
+- GitHub Actions run: [45364692436](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45364692436)
+- SonarCloud check: [Quality Gate passed](https://sonarcloud.io/dashboard?id=uvinN20_Finance_Tracker_and_Management_System&pullRequest=5)
+- New issues: 0; accepted issues: 0; security hotspots: 0
+- New-code coverage: 0.0%, because this change contains QA CSV corrections and no executable application code
+
+## Earlier source-code analysis
 
 - Branch: qa/initial-setup
 - GitHub Actions run: [45240678768](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45240678768)

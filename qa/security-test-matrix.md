@@ -18,6 +18,6 @@ Run these checks only against a disposable local or CI environment.
 ## Security limitations
 
 - These are automated regression checks and source-level ownership checks, not a third-party penetration test.
-- Live database-backed cross-user attack scenarios were not executed in this QA run; CI BDD and controller mocks verify expected guards but do not replace two-user integration tests.
+- A live MongoDB-backed two-user integration test covers foreign-account transaction creation, transfers to another user's account, transaction reassignment, and foreign transaction read/update/delete. This is representative regression coverage, not a third-party penetration test or exhaustive attack assessment of every endpoint.
 - Transfer writes are sequential. Multi-document atomicity and concurrent requests require a MongoDB replica-set test environment and dedicated race tests before production assurance.
 - Do not use production credentials, production tokens, or production data in these checks.
