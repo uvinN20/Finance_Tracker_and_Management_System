@@ -61,6 +61,20 @@ describe('getBudgets', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
+  test.each([
+    [795, 79.5, 'ok'],
+    [800, 80, 'warning'],
+    [995, 99.5, 'warning'],
+    [1000, 100, 'exceeded'],
+  ])('classifies the exact budget threshold at %s spent', async (spent, percentageUsed, status) => {
+    Budget.find.mockResolvedValue([{ category: 'Food', amount: 1000 }]);
+    Transaction.aggregate.mockResolvedValue([{ _id: null, total: spent }]);
+
+    await getBudgets(req, res, next);
+
+    expect(res.body.budgets[0]).toEqual(expect.objectContaining({ spent, percentageUsed, status }));
+  });
+
   test('returns zero totals when the user has no budgets', async () => {
     Budget.find.mockResolvedValue([]);
 
