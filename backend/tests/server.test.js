@@ -1,3 +1,5 @@
+jest.mock('dotenv', () => ({ config: jest.fn() }));
+
 describe('server startup', () => {
   const originalPort = process.env.PORT;
   const originalExitCode = process.exitCode;
@@ -37,7 +39,7 @@ describe('server startup', () => {
     require('../server');
     await new Promise(setImmediate);
 
-    expect(listen).toHaveBeenCalledWith('5000', expect.any(Function));
+    expect(listen).toHaveBeenCalledWith(5000, expect.any(Function));
   });
 
   test('reports database startup failures and sets a failing process exit code', async () => {
