@@ -129,7 +129,7 @@ describe('getTransactions', () => {
       type: 'expense',
       category: 'Food',
       accountId: new mongoose.Types.ObjectId('000000000000000000000002'),
-      date: { $gte: new Date('2026-10-01'), $lte: new Date('2026-10-31') },
+      date: mongoose.trusted({ $gte: new Date('2026-10-01'), $lte: new Date('2026-10-31') }),
       $or: [
         { description: /lunch/i },
         { category: /lunch/i },
