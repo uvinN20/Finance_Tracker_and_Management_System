@@ -7,7 +7,7 @@ Initial QA execution: 2026-11-23. Latest source-code-changing regression and Son
 | Check | Result |
 |---|---|
 | Jest unit + Express/Supertest integration | 171 tests passed across 12 suites on the audited branch |
-| Controller coverage | 98.01% statements, 93.96% branches, 100% functions, 98.68% lines |
+| Controller coverage | 98.15% statements, 94.02% branches, 100% functions, 98.78% lines |
 | Coverage regression gates | Passed: statements ≥90%, branches ≥85%, functions ≥95%, lines ≥95% |
 | MongoDB-backed API integration | 3 tests passed: financial flow, two-user isolation, budgets/goals/dashboard/reports |
 | Cucumber BDD | 2 scenarios and 14 steps passed; generated scenario records are removed |
