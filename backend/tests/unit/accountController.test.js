@@ -3,11 +3,12 @@ jest.mock('../../models/Transaction');
 
 const Account = require('../../models/Account');
 const Transaction = require('../../models/Transaction');
+const mongoose = require('mongoose');
 const { getAccounts, createAccount, updateAccount, deleteAccount, transfer } = require('../../controllers/accountController');
 
 const userId = 'user-1';
-const fromId = 'account-1';
-const toId = 'account-2';
+const fromId = '64a000000000000000000001';
+const toId = '64a000000000000000000002';
 
 function response() {
   return {
@@ -33,8 +34,8 @@ describe('transfer', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    fromAccount = { _id: fromId, userId, balance: 100, save: jest.fn().mockResolvedValue(undefined) };
-    toAccount = { _id: toId, userId, balance: 20, save: jest.fn().mockResolvedValue(undefined) };
+    fromAccount = { _id: new mongoose.Types.ObjectId(fromId), userId, balance: 100, save: jest.fn().mockResolvedValue(undefined) };
+    toAccount = { _id: new mongoose.Types.ObjectId(toId), userId, balance: 20, save: jest.fn().mockResolvedValue(undefined) };
     req = { user: { _id: userId }, body: { fromAccountId: fromId, toAccountId: toId, amount: 30 } };
     res = response();
     next = jest.fn();

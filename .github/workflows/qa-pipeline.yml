@@ -83,6 +83,10 @@ jobs:
         working-directory: frontend
         run: npm ci --ignore-scripts
 
+      - name: Run frontend tests with coverage
+        working-directory: frontend
+        run: npm test
+
       - name: Build frontend for production
         working-directory: frontend
         run: npm run build
@@ -103,5 +107,6 @@ jobs:
           name: finora-qa-evidence
           path: |
             backend/coverage/
+            frontend/coverage/
             finora-api.log
           if-no-files-found: ignore

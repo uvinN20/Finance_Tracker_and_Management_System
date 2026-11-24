@@ -1,6 +1,7 @@
 jest.mock('../../models/Transaction');
 jest.mock('../../models/Account');
 
+const mongoose = require('mongoose');
 const Transaction = require('../../models/Transaction');
 const Account = require('../../models/Account');
 const { createTransaction, getTransactions, getTransactionById } = require('../../controllers/transactionController');
@@ -103,7 +104,7 @@ describe('getTransactions', () => {
       user: { _id: userId },
       query: {
         type: 'expense', category: 'Food', startDate: '2026-10-01', endDate: '2026-10-31',
-        search: 'lunch', accountId: 'account-2', page: '2', limit: '10', sort: 'amount',
+        search: 'lunch', accountId: '000000000000000000000002', page: '2', limit: '10', sort: 'amount',
       },
     };
     res = response();
@@ -127,11 +128,11 @@ describe('getTransactions', () => {
       userId,
       type: 'expense',
       category: 'Food',
-      accountId: 'account-2',
+      accountId: new mongoose.Types.ObjectId('000000000000000000000002'),
       date: { $gte: new Date('2026-10-01'), $lte: new Date('2026-10-31') },
       $or: [
-        { description: { $regex: 'lunch', $options: 'i' } },
-        { category: { $regex: 'lunch', $options: 'i' } },
+        { description: /lunch/i },
+        { category: /lunch/i },
       ],
     };
     expect(Transaction.find).toHaveBeenCalledWith(expectedFilter);
@@ -165,7 +166,27 @@ describe('getTransactions', () => {
     expect(res.body.pagination).toEqual({ page: 1, limit: 100, totalCount: 0, totalPages: 0 });
   });
 
+  test.each([
+    [{ type: 'transfer' }, 'type must be income or expense'],
+    [{ category: '   ' }, 'category must be a non-empty string'],
+    [{ accountId: 'invalid-id' }, 'accountId must be a valid account ID'],
+    [{ startDate: 'not-a-date' }, 'startDate must be a valid date'],
+    [{ endDate: 'not-a-date' }, 'endDate must be a valid date'],
+    [{ search: { $ne: '' } }, 'search must be a string of at most 100 characters'],
+    [{ search: 'x'.repeat(101) }, 'search must be a string of at most 100 characters'],
+    [{ sort: 'userId' }, 'sort is not supported'],
+  ])('rejects unsafe query input with %s', async (query, message) => {
+    req.query = query;
+
+    await getTransactions(req, res, next);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ message });
+    expect(Transaction.find).not.toHaveBeenCalled();
+  });
+
   test('forwards list and count errors to middleware', async () => {
+    req.query = { accountId: '000000000000000000000002' };
     const error = new Error('query failed');
     Transaction.find.mockReturnValue({
       populate: jest.fn().mockReturnThis(),

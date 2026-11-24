@@ -117,8 +117,9 @@ const Transactions = () => {
               ))}
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Amount</label>
+              <label htmlFor="transaction-amount" className="block text-xs font-medium mb-1">Amount</label>
               <input
+                id="transaction-amount"
                 type="number"
                 min="0"
                 step="0.01"
@@ -129,8 +130,9 @@ const Transactions = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Category</label>
+              <label htmlFor="transaction-category" className="block text-xs font-medium mb-1">Category</label>
               <select
+                id="transaction-category"
                 required
                 className="w-full border rounded-md px-3 py-1.5"
                 value={form.category}
@@ -143,8 +145,9 @@ const Transactions = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Account</label>
+              <label htmlFor="transaction-account" className="block text-xs font-medium mb-1">Account</label>
               <select
+                id="transaction-account"
                 required
                 className="w-full border rounded-md px-3 py-1.5"
                 value={form.accountId}
@@ -158,8 +161,9 @@ const Transactions = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Date</label>
+              <label htmlFor="transaction-date" className="block text-xs font-medium mb-1">Date</label>
               <input
+                id="transaction-date"
                 type="date"
                 required
                 className="w-full border rounded-md px-3 py-1.5"
@@ -168,16 +172,18 @@ const Transactions = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Description</label>
+              <label htmlFor="transaction-description" className="block text-xs font-medium mb-1">Description</label>
               <input
+                id="transaction-description"
                 className="w-full border rounded-md px-3 py-1.5"
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Payment Method</label>
+              <label htmlFor="transaction-payment-method" className="block text-xs font-medium mb-1">Payment Method</label>
               <input
+                id="transaction-payment-method"
                 className="w-full border rounded-md px-3 py-1.5"
                 placeholder="Cash, Card, Bank transfer..."
                 value={form.paymentMethod}

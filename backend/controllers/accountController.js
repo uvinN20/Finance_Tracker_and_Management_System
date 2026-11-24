@@ -1,5 +1,11 @@
+const mongoose = require('mongoose');
 const Account = require('../models/Account');
 const Transaction = require('../models/Transaction');
+
+const parseAccountId = (value) => {
+  if (typeof value !== 'string' || !/^[a-f\d]{24}$/i.test(value)) return null;
+  return new mongoose.Types.ObjectId(value);
+};
 
 const getAccounts = async (req, res, next) => {
   try {
@@ -67,15 +73,17 @@ const deleteAccount = async (req, res, next) => {
 const transfer = async (req, res, next) => {
   try {
     const { fromAccountId, toAccountId, amount } = req.body;
-    if (!fromAccountId || !toAccountId || typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
+    const safeFromAccountId = parseAccountId(fromAccountId);
+    const safeToAccountId = parseAccountId(toAccountId);
+    if (!safeFromAccountId || !safeToAccountId || typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
       return res.status(400).json({ message: 'fromAccountId, toAccountId and a positive amount are required' });
     }
-    if (fromAccountId === toAccountId) {
+    if (safeFromAccountId.equals(safeToAccountId)) {
       return res.status(400).json({ message: 'Cannot transfer to the same account' });
     }
 
-    const fromAccount = await Account.findOne({ _id: fromAccountId, userId: req.user._id });
-    const toAccount = await Account.findOne({ _id: toAccountId, userId: req.user._id });
+    const fromAccount = await Account.findOne({ _id: safeFromAccountId, userId: req.user._id });
+    const toAccount = await Account.findOne({ _id: safeToAccountId, userId: req.user._id });
     if (!fromAccount || !toAccount) {
       return res.status(404).json({ message: 'One or both accounts not found' });
     }

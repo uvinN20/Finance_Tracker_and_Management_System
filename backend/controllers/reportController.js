@@ -1,4 +1,5 @@
 const Transaction = require('../models/Transaction');
+const buildDateRange = require('./dateRange');
 
 const summarize = async (userId, startDate, endDate) => {
   const [totals, byCategory, byType] = await Promise.all([
@@ -87,14 +88,17 @@ const yearlyReport = async (req, res, next) => {
 const categoryReport = async (req, res, next) => {
   try {
     const { category, startDate, endDate } = req.query;
-    if (!category) return res.status(400).json({ message: 'category is required' });
-
-    const filter = { userId: req.user._id, category };
-    if (startDate || endDate) {
-      filter.date = {};
-      if (startDate) filter.date.$gte = new Date(startDate);
-      if (endDate) filter.date.$lte = new Date(endDate);
+    if (typeof category !== 'string' || !category.trim()) {
+      return res.status(400).json({ message: 'category is required' });
     }
+    const normalizedCategory = category.trim();
+
+    const filter = { userId: req.user._id, category: normalizedCategory };
+    const dateRange = buildDateRange(startDate, endDate);
+    if (dateRange.invalidField) {
+      return res.status(400).json({ message: `${dateRange.invalidField} must be a valid date` });
+    }
+    if (dateRange.filter) filter.date = dateRange.filter;
 
     const transactions = await Transaction.find(filter).sort({ date: -1 });
     const total = transactions.reduce((s, t) => s + (t.type === 'expense' ? t.amount : 0), 0);

@@ -15,7 +15,7 @@ const Register = () => {
     setLoading(true);
     try {
       await register(form.name, form.email, form.password, form.currency);
-      navigate('/');
+      void navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     } finally {
@@ -33,8 +33,9 @@ const Register = () => {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Name</label>
+            <label htmlFor="register-name" className="block text-sm font-medium mb-1">Name</label>
             <input
+              id="register-name"
               required
               className="w-full border rounded-md px-3 py-2 text-sm"
               value={form.name}
@@ -42,8 +43,9 @@ const Register = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label htmlFor="register-email" className="block text-sm font-medium mb-1">Email</label>
             <input
+              id="register-email"
               type="email"
               required
               className="w-full border rounded-md px-3 py-2 text-sm"
@@ -52,8 +54,9 @@ const Register = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
+            <label htmlFor="register-password" className="block text-sm font-medium mb-1">Password</label>
             <input
+              id="register-password"
               type="password"
               required
               minLength={6}
@@ -63,8 +66,9 @@ const Register = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Currency</label>
+            <label htmlFor="register-currency" className="block text-sm font-medium mb-1">Currency</label>
             <select
+              id="register-currency"
               className="w-full border rounded-md px-3 py-2 text-sm"
               value={form.currency}
               onChange={(e) => setForm({ ...form, currency: e.target.value })}

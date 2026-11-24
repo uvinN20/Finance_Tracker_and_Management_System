@@ -90,8 +90,9 @@ const Accounts = () => {
           <h2 className="font-semibold mb-3">Add Account</h2>
           <form onSubmit={handleCreate} className="space-y-3 text-sm">
             <div>
-              <label className="block text-xs font-medium mb-1">Name</label>
+              <label htmlFor="account-name" className="block text-xs font-medium mb-1">Name</label>
               <input
+                id="account-name"
                 required
                 className="w-full border rounded-md px-3 py-1.5"
                 value={form.name}
@@ -99,8 +100,9 @@ const Accounts = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Type</label>
+              <label htmlFor="account-type" className="block text-xs font-medium mb-1">Type</label>
               <select
+                id="account-type"
                 className="w-full border rounded-md px-3 py-1.5"
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value })}
@@ -114,8 +116,9 @@ const Accounts = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Starting Balance</label>
+              <label htmlFor="account-starting-balance" className="block text-xs font-medium mb-1">Starting Balance</label>
               <input
+                id="account-starting-balance"
                 type="number"
                 step="0.01"
                 className="w-full border rounded-md px-3 py-1.5"
@@ -123,7 +126,7 @@ const Accounts = () => {
                 onChange={(e) => setForm({ ...form, balance: e.target.value })}
               />
             </div>
-            <button className="w-full bg-brand-600 text-white rounded-md py-2 font-medium hover:bg-brand-700">
+            <button type="submit" className="w-full bg-brand-600 text-white rounded-md py-2 font-medium hover:bg-brand-700">
               Add Account
             </button>
           </form>
@@ -134,8 +137,9 @@ const Accounts = () => {
           <p className="text-xs text-gray-400 mb-3">Transfers move money between your own accounts — they're not counted as income or expense.</p>
           <form onSubmit={handleTransfer} className="space-y-3 text-sm">
             <div>
-              <label className="block text-xs font-medium mb-1">From</label>
+              <label htmlFor="transfer-from-account" className="block text-xs font-medium mb-1">From</label>
               <select
+                id="transfer-from-account"
                 required
                 className="w-full border rounded-md px-3 py-1.5"
                 value={transferForm.fromAccountId}
@@ -150,8 +154,9 @@ const Accounts = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">To</label>
+              <label htmlFor="transfer-to-account" className="block text-xs font-medium mb-1">To</label>
               <select
+                id="transfer-to-account"
                 required
                 className="w-full border rounded-md px-3 py-1.5"
                 value={transferForm.toAccountId}
@@ -166,8 +171,9 @@ const Accounts = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Amount</label>
+              <label htmlFor="transfer-amount" className="block text-xs font-medium mb-1">Amount</label>
               <input
+                id="transfer-amount"
                 type="number"
                 min="0"
                 step="0.01"
@@ -177,7 +183,7 @@ const Accounts = () => {
                 onChange={(e) => setTransferForm({ ...transferForm, amount: e.target.value })}
               />
             </div>
-            <button className="w-full bg-gray-800 text-white rounded-md py-2 font-medium hover:bg-gray-900">
+            <button type="submit" className="w-full bg-gray-800 text-white rounded-md py-2 font-medium hover:bg-gray-900">
               Transfer
             </button>
           </form>

@@ -35,7 +35,7 @@ useEffect(() => {
   const handleLogout = () => {
     setOpen(false);
     logout();
-    navigate('/login');
+    void navigate('/login');
   };
 
   return (

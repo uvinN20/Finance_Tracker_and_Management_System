@@ -15,8 +15,8 @@ const getDashboard = async (req, res, next) => {
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
 
-    const month = req.query.month === undefined ? currentMonth : parseInt(req.query.month, 10);
-    const year = req.query.year === undefined ? currentYear : parseInt(req.query.year, 10);
+    const month = req.query.month === undefined ? currentMonth : Number.parseInt(req.query.month, 10);
+    const year = req.query.year === undefined ? currentYear : Number.parseInt(req.query.year, 10);
     if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < 2000 || year > 2100) {
       return res.status(400).json({ message: 'month must be 1-12 and year must be between 2000 and 2100' });
     }

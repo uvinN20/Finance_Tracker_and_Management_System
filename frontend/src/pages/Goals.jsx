@@ -62,8 +62,9 @@ const Goals = () => {
           {error && <div className="bg-red-50 text-red-600 text-xs p-2 rounded mb-3">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-3 text-sm">
             <div>
-              <label className="block text-xs font-medium mb-1">Goal Name</label>
+              <label htmlFor="goal-name" className="block text-xs font-medium mb-1">Goal Name</label>
               <input
+                id="goal-name"
                 required
                 placeholder="e.g. Buy a laptop"
                 className="w-full border rounded-md px-3 py-1.5"
@@ -72,8 +73,9 @@ const Goals = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Target Amount</label>
+              <label htmlFor="goal-target-amount" className="block text-xs font-medium mb-1">Target Amount</label>
               <input
+                id="goal-target-amount"
                 type="number"
                 min="0"
                 required
@@ -83,8 +85,9 @@ const Goals = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Already Saved</label>
+              <label htmlFor="goal-saved-amount" className="block text-xs font-medium mb-1">Already Saved</label>
               <input
+                id="goal-saved-amount"
                 type="number"
                 min="0"
                 className="w-full border rounded-md px-3 py-1.5"
@@ -93,15 +96,16 @@ const Goals = () => {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium mb-1">Target Date (optional)</label>
+              <label htmlFor="goal-target-date" className="block text-xs font-medium mb-1">Target Date (optional)</label>
               <input
+                id="goal-target-date"
                 type="date"
                 className="w-full border rounded-md px-3 py-1.5"
                 value={form.targetDate}
                 onChange={(e) => setForm({ ...form, targetDate: e.target.value })}
               />
             </div>
-            <button className="w-full bg-brand-600 text-white rounded-md py-2 font-medium hover:bg-brand-700">
+            <button type="submit" className="w-full bg-brand-600 text-white rounded-md py-2 font-medium hover:bg-brand-700">
               Create Goal
             </button>
           </form>

@@ -7,6 +7,7 @@ describe('Finora Express API integration', () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ status: 'ok' });
+    expect(response.headers['x-powered-by']).toBeUndefined();
   });
 
   test('protects account routes when no bearer token is supplied', async () => {
