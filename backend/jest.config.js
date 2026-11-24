@@ -3,6 +3,8 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/', '/tests/database/'],
   collectCoverageFrom: [
     'controllers/**/*.js',
+    'app.js',
+    'server.js',
     '!**/node_modules/**',
   ],
   coverageDirectory: 'coverage',

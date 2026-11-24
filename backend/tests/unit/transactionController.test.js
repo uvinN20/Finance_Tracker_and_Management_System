@@ -166,6 +166,25 @@ describe('getTransactions', () => {
     expect(res.body.pagination).toEqual({ page: 1, limit: 100, totalCount: 0, totalPages: 0 });
   });
 
+  test.each([
+    [{ type: 'transfer' }, 'type must be income or expense'],
+    [{ category: '   ' }, 'category must be a non-empty string'],
+    [{ accountId: 'invalid-id' }, 'accountId must be a valid account ID'],
+    [{ startDate: 'not-a-date' }, 'startDate must be a valid date'],
+    [{ endDate: 'not-a-date' }, 'endDate must be a valid date'],
+    [{ search: { $ne: '' } }, 'search must be a string of at most 100 characters'],
+    [{ search: 'x'.repeat(101) }, 'search must be a string of at most 100 characters'],
+    [{ sort: 'userId' }, 'sort is not supported'],
+  ])('rejects unsafe query input with %s', async (query, message) => {
+    req.query = query;
+
+    await getTransactions(req, res, next);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ message });
+    expect(Transaction.find).not.toHaveBeenCalled();
+  });
+
   test('forwards list and count errors to middleware', async () => {
     req.query = { accountId: '000000000000000000000002' };
     const error = new Error('query failed');

@@ -1,6 +1,7 @@
 const Transaction = require('../models/Transaction');
 const mongoose = require('mongoose');
 const Account = require('../models/Account');
+const buildDateRange = require('./dateRange');
 
 const parseAccountId = (value) => {
   if (typeof value !== 'string' || !/^[a-f\d]{24}$/i.test(value)) return null;
@@ -82,21 +83,11 @@ const getTransactions = async (req, res, next) => {
       if (!safeAccountId) return res.status(400).json({ message: 'accountId must be a valid account ID' });
       filter.accountId = safeAccountId;
     }
-    if (startDate || endDate) {
-      filter.date = {};
-      if (startDate !== undefined) {
-        if (typeof startDate !== 'string' || Number.isNaN(new Date(startDate).getTime())) {
-          return res.status(400).json({ message: 'startDate must be a valid date' });
-        }
-        filter.date.$gte = new Date(startDate);
-      }
-      if (endDate !== undefined) {
-        if (typeof endDate !== 'string' || Number.isNaN(new Date(endDate).getTime())) {
-          return res.status(400).json({ message: 'endDate must be a valid date' });
-        }
-        filter.date.$lte = new Date(endDate);
-      }
+    const dateRange = buildDateRange(startDate, endDate);
+    if (dateRange.invalidField) {
+      return res.status(400).json({ message: `${dateRange.invalidField} must be a valid date` });
     }
+    if (dateRange.filter) filter.date = dateRange.filter;
     if (search !== undefined) {
       if (typeof search !== 'string' || search.length > 100) {
         return res.status(400).json({ message: 'search must be a string of at most 100 characters' });

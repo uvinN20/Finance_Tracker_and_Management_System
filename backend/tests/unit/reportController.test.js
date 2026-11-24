@@ -238,6 +238,19 @@ describe('categoryReport', () => {
     expect(Transaction.find).toHaveBeenCalledWith({ userId, category: 'Food' });
   });
 
+  test.each([
+    [{ category: 'Food', startDate: 'not-a-date' }, 'startDate'],
+    [{ category: 'Food', endDate: 'not-a-date' }, 'endDate'],
+  ])('rejects an invalid %s filter before querying', async (query, field) => {
+    req.query = query;
+
+    await categoryReport(req, res, next);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ message: `${field} must be a valid date` });
+    expect(Transaction.find).not.toHaveBeenCalled();
+  });
+
   test('forwards query errors to middleware', async () => {
     const error = new Error('database unavailable');
     Transaction.find.mockReturnValue({ sort: jest.fn().mockRejectedValue(error) });
