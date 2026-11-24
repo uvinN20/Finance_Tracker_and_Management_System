@@ -1,6 +1,6 @@
 # Finora QA Execution Summary
 
-Initial QA execution: 2026-11-23. Latest full regression and SonarQube PR verification: head commit `6b1cded` on PR #5; GitHub Actions run [45364692436](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45364692436) succeeded, including tests, frontend build, and SonarCloud Quality Gate. PR #5 was merged as `278cc68`.
+Initial QA execution: 2026-11-23. Latest full regression and SonarQube PR verification: head commit `17e4190` on PR #6; GitHub Actions run [45369455704](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45369455704) succeeded, including the artifact check, tests, frontend build, and SonarCloud Quality Gate. PR #6 was merged as `e7a2b4d`.
 
 ## Verified results
 
@@ -19,7 +19,7 @@ Initial QA execution: 2026-11-23. Latest full regression and SonarQube PR verifi
 | Node performance smoke | 1, 10, 50, and 100 concurrent users; additionally 100 users × 30 requests per endpoint (6,000 samples); 0 errors |
 | Apache JMeter | Earlier short profiles used 1, 10, 50, and 100 users. The 2026-11-24 sustained benchmark passed its 500 ms p95 / zero-error criteria at 15 users; 20, 25, and 50-user results are documented in [jmeter/README.md](jmeter/README.md) and [the results CSV](jmeter/results/sustained-benchmark-2026-11-24.csv). |
 | QA artifact validation | 41 required files present; 60 design/result rows match by test ID and scenario; Postman collection and both JMeter plans parse successfully |
-| SonarQube Cloud | PR #5 analysis passed its Quality Gate with 0 new issues and 0 security hotspots. The PR changed QA CSVs only, so new-code coverage was 0.0%. The earlier source-code analysis on `qa/initial-setup` recorded 93.6% new-code coverage, 0 bugs, 0 vulnerabilities, and 0 code smells; see [SonarQube details](sonarqube.md). |
+| SonarQube Cloud | PR #6 analysis passed its Quality Gate with 83.3% new-code coverage, 0 new issues, 0 accepted issues, 0 security hotspots, and 0.0% duplication. The earlier source-code analysis on `qa/initial-setup` recorded 93.6% new-code coverage, 0 bugs, 0 vulnerabilities, and 0 code smells; see [SonarQube details](sonarqube.md). |
 
 Detailed measurements: [performance/README.md](performance/README.md) and [jmeter/README.md](jmeter/README.md).
 
