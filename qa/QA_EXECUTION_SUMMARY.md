@@ -1,6 +1,6 @@
 # Finora QA Execution Summary
 
-Initial QA execution: 2026-11-23. Latest full regression and SonarQube PR verification: head commit `17e4190` on PR #6; GitHub Actions run [45369455704](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45369455704) succeeded, including the artifact check, tests, frontend build, and SonarCloud Quality Gate. PR #6 was merged as `e7a2b4d`.
+Initial QA execution: 2026-11-23. Latest source-code-changing regression and SonarQube verification: head commit `17e4190` on PR #6; GitHub Actions run [45369455704](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45369455704) succeeded, including the artifact check, tests, frontend build, and SonarCloud Quality Gate. PR #6 was merged as `e7a2b4d`; the later PR #7 documentation-only update also passed CI and SonarQube.
 
 ## Verified results
 
