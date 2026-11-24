@@ -17,7 +17,7 @@ Initial QA execution: 2026-11-23. Latest CI/Sonar verification: commit 9befd0a o
 | Frontend production build | Passed; page-based lazy loading reduced the main JS entry bundle from 672.10 kB to 237.43 kB (80.23 kB gzip) |
 | npm dependency audit | Backend and frontend both report 0 vulnerabilities after compatible lockfile updates |
 | Node performance smoke | 1, 10, 50, and 100 concurrent users; additionally 100 users × 30 requests per endpoint (6,000 samples); 0 errors |
-| Apache JMeter load smoke | 1, 10, 50, and 100 users; 1,610 total samples, 0 errors; per-endpoint latency recorded in [jmeter/README.md](jmeter/README.md) |
+| Apache JMeter | Earlier short profiles used 1, 10, 50, and 100 users. The 2026-11-24 sustained benchmark passed its 500 ms p95 / zero-error criteria at 15 users; 20, 25, and 50-user results are documented in [jmeter/README.md](jmeter/README.md) and [the results CSV](jmeter/results/sustained-benchmark-2026-11-24.csv). |
 | QA artifact validation | 39-file inventory check passed; workflow and JMeter XML parsed; 60 manual cases and 8 Postman requests counted |
 | SonarQube Cloud | Latest scan completed successfully. Quality Gate passed: new-code coverage 93.6% (threshold 80%); 0 bugs, 0 vulnerabilities, 0 code smells. |
 
@@ -52,7 +52,7 @@ See [defect-log.md](defect-log.md) for reproduction and regression evidence.
 
 ## Remaining limitations
 
-- JMeter profiles were short local smoke runs, not a capacity benchmark. Production-like hardware/data and sustained load have not been measured.
+- JMeter includes a sustained local synthetic-data run, but it is not a production capacity benchmark or SLA. Representative hardware, production-sized data, and realistic user pacing have not been measured.
 - Transfer persistence uses sequential writes. Atomicity during concurrent transfers or database failure still needs replica-set testing and a transaction-based implementation before production assurance.
 - The QA results matrix records 60 Pass outcomes, but its evidence is not 60 browser UI executions. The method and source listed per case determine what was actually verified.
 - The SonarQube result is for the qa/initial-setup branch and scanned new-code scope; it does not establish production capacity or replace manual UI evidence.
