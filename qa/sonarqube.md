@@ -4,11 +4,11 @@ The repository is connected to SonarQube Cloud. The GitHub Actions workflow runs
 
 ## Most recent PR analysis
 
-- Pull request: [#5 — Correct Finora QA CSV scenario records](https://github.com/uvinN20/Finance_Tracker_and_Management_System/pull/5), merged as `278cc687d2f124924be9342f6cd071dcc8e807cb`
-- GitHub Actions run: [45364692436](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45364692436)
-- SonarCloud check: [Quality Gate passed](https://sonarcloud.io/dashboard?id=uvinN20_Finance_Tracker_and_Management_System&pullRequest=5)
+- Pull request: [#6 — Complete Finora QA audit and fix budget threshold boundary](https://github.com/uvinN20/Finance_Tracker_and_Management_System/pull/6), merged as `e7a2b4d3d933dad18e171a88063b9b1efc91fefc`
+- GitHub Actions run: [45369455704](https://github.com/uvinN20/Finance_Tracker_and_Management_System/actions/runs/45369455704)
+- SonarCloud check: [Quality Gate passed](https://sonarcloud.io/dashboard?id=uvinN20_Finance_Tracker_and_Management_System&pullRequest=6)
 - New issues: 0; accepted issues: 0; security hotspots: 0
-- New-code coverage: 0.0%, because this change contains QA CSV corrections and no executable application code
+- New-code coverage: 83.3%; duplication on new code: 0.0%
 
 ## Earlier source-code analysis
 
