@@ -87,7 +87,7 @@ const getTransactions = async (req, res, next) => {
     if (dateRange.invalidField) {
       return res.status(400).json({ message: `${dateRange.invalidField} must be a valid date` });
     }
-    if (dateRange.filter) filter.date = dateRange.filter;
+    if (dateRange.filter) filter.date = mongoose.trusted(dateRange.filter);
     if (search !== undefined) {
       if (typeof search !== 'string' || search.length > 100) {
         return res.status(400).json({ message: 'search must be a string of at most 100 characters' });
@@ -105,14 +105,15 @@ const getTransactions = async (req, res, next) => {
     }
     const pageNum = Math.max(Number.parseInt(page, 10) || 1, 1);
     const limitNum = Math.min(Math.max(Number.parseInt(limit, 10) || 20, 1), 100);
+    const safeFilter = mongoose.sanitizeFilter(filter);
 
     const [transactions, totalCount] = await Promise.all([
-      Transaction.find(filter)
+      Transaction.find(safeFilter)
         .populate('accountId', 'name type')
         .sort(sort)
         .skip((pageNum - 1) * limitNum)
         .limit(limitNum),
-      Transaction.countDocuments(filter),
+      Transaction.countDocuments(safeFilter),
     ]);
 
     res.json({
