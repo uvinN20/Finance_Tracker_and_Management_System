@@ -23,6 +23,7 @@ $requiredFiles = @(
   'frontend/package.json',
   'qa/test-plan.md',
   'qa/check-deliverables.ps1',
+  'qa/Finora-manual-results.csv',
   'qa/manual-test-cases.csv',
   'qa/requirements-traceability.md',
   'qa/black-box-design.md',
@@ -36,6 +37,7 @@ $requiredFiles = @(
   'qa/selenium/smoke-test.cjs',
   'qa/selenium/README.md',
   'qa/jmeter/Finora API Load Test.jmx',
+  'qa/jmeter/Finora Sustained API Benchmark.jmx',
   'qa/jmeter/README.md',
   'qa/performance/load-smoke.cjs',
   'qa/performance/README.md',
@@ -48,18 +50,29 @@ $empty = @($requiredFiles | Where-Object {
   (Test-Path -LiteralPath $path -PathType Leaf) -and (Get-Item -LiteralPath $path).Length -eq 0
 })
 $casePath = Join-Path $repoRoot 'qa/manual-test-cases.csv'
-$caseCount = @(Import-Csv -LiteralPath $casePath).Count
+$cases = @(Import-Csv -LiteralPath $casePath)
+$caseCount = $cases.Count
+$resultsPath = Join-Path $repoRoot 'qa/Finora-manual-results.csv'
+$results = @(Import-Csv -LiteralPath $resultsPath)
 $collectionPath = Join-Path $repoRoot 'qa/postman/Finora API Smoke Tests.postman_collection.json'
 $collection = Get-Content -LiteralPath $collectionPath -Raw | ConvertFrom-Json
 $jmxPath = Join-Path $repoRoot 'qa/jmeter/Finora API Load Test.jmx'
 [xml]$jmx = Get-Content -LiteralPath $jmxPath -Raw
+$sustainedJmxPath = Join-Path $repoRoot 'qa/jmeter/Finora Sustained API Benchmark.jmx'
+[xml]$sustainedJmx = Get-Content -LiteralPath $sustainedJmxPath -Raw
 
 $problems = @()
 if ($missing.Count) { $problems += "Missing files: $($missing -join ', ')" }
 if ($empty.Count) { $problems += "Empty files: $($empty -join ', ')" }
 if ($caseCount -ne 60) { $problems += "Expected 60 manual cases; found $caseCount" }
+if ($results.Count -ne 60) { $problems += "Expected 60 recorded manual results; found $($results.Count)" }
+$scenarioById = @{}
+foreach ($case in $cases) { $scenarioById[$case.ID] = $case.Scenario }
+$scenarioMismatches = @($results | Where-Object { $scenarioById[$_.ID] -ne $_.Scenario })
+if ($scenarioMismatches.Count) { $problems += "Manual result scenario mismatches: $($scenarioMismatches.Count)" }
 if (@($collection.item).Count -ne 8) { $problems += "Expected 8 Postman requests; found $(@($collection.item).Count)" }
 if (-not $jmx.DocumentElement) { $problems += 'JMeter plan XML has no document root' }
+if (-not $sustainedJmx.DocumentElement) { $problems += 'Sustained JMeter plan XML has no document root' }
 
 if ($problems.Count) {
   Write-Host 'FAIL: QA deliverable check'
@@ -68,5 +81,5 @@ if ($problems.Count) {
 }
 
 Write-Host "PASS: $($requiredFiles.Count) required files exist and are non-empty."
-Write-Host "PASS: $caseCount manual case rows, $(@($collection.item).Count) Postman requests, valid collection JSON, and valid JMeter XML."
+Write-Host "PASS: $caseCount test designs and $($results.Count) result rows match by ID/scenario; $(@($collection.item).Count) Postman requests; collection JSON and both JMeter plans parse."
 Write-Host 'Note: presence/format checks do not mean manual cases or external scans have been executed.'

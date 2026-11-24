@@ -25,6 +25,10 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Validate QA deliverables
+        shell: pwsh
+        run: ./qa/check-deliverables.ps1
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:

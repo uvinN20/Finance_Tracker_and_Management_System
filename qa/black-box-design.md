@@ -28,7 +28,7 @@ For a LKR 1,000 budget, the intended status rules are OK below 80%, warning from
 | 100% | LKR 1,000 | Exceeded |
 | 101% | LKR 1,010 | Exceeded |
 
-The controller coverage suite currently exercises 80%, 101%, and zero-spend. The remaining values are included as manual boundary cases for a fuller UI/API run.
+The budget controller compares the unrounded usage ratio with the 80% and 100% thresholds and reports the display percentage to one decimal place. Automated boundary tests cover 79.5%, 80%, 99.5%, 100%, and 101%, including the early-warning and early-exceeded defect fixed during the final audit.
 
 ### Other numeric boundaries
 

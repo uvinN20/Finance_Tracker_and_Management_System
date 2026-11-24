@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Verify the core behavior and quality risks of Finora, a React/Vite finance tracker with a Node.js/Express API and MongoDB persistence. The plan covers authentication, financial data integrity, account transfers, budgeting, savings goals, dashboard calculations, reports, API security, browser flows, and performance preparation.
+Verify the core behavior and quality risks of Finora, a React/Vite finance tracker with a Node.js/Express API and MongoDB persistence. The plan covers authentication, financial data integrity, account transfers, budgeting, savings goals, dashboard calculations, reports, API security, browser flows, and local performance testing.
 
 ## Scope
 
-In scope: authentication and profile APIs; transactions and balance updates; accounts and transfers; budgets; savings goals; dashboard and reports; API authorization and user scoping; representative UI flows; backend unit/API integration tests; Cucumber BDD scenarios; Postman smoke collection; frontend production build.
+In scope: authentication and profile APIs; transactions and balance updates; accounts and transfers; budgets; savings goals; dashboard and reports; API authorization and user scoping; representative UI flows; backend unit/API integration tests; Cucumber BDD scenarios; Postman smoke collection; frontend production build; local performance profiles.
 
-Out of scope for this local QA pass: production deployment, penetration testing against a public system, multi-currency conversion, accessibility certification, and a measured high-concurrency benchmark. Load-test assets are provided, but a JMeter run requires JMeter and a dedicated test environment.
+Out of scope for this local QA pass: production deployment, penetration testing against a public system, multi-currency conversion, accessibility certification, and production capacity/SLA certification. A sustained local stress-style read benchmark was run with synthetic data; see [`jmeter/README.md`](jmeter/README.md). It does not predict production capacity.
 
 ## Test objectives
 
@@ -29,7 +29,7 @@ Out of scope for this local QA pass: production deployment, penetration testing 
 | API smoke | Postman collection / Newman in CI | Health, registration, accounts, transaction, transfer, balance integrity |
 | UI smoke | Selenium WebDriver with Edge | Register, record income, list transaction, dashboard balance |
 | Build / CI | GitHub Actions, Vite | Controller coverage gates, BDD, Postman, production frontend build |
-| Performance preparation | Apache JMeter plan | Authenticated dashboard and transaction-list load profile |
+| Performance | Apache JMeter | Sustained authenticated dashboard and transaction-list profiles at 15, 20, 25, and 50 virtual users; local results and limitations are documented in [`jmeter/README.md`](jmeter/README.md) |
 
 ## Environment and test data
 
@@ -54,7 +54,7 @@ Out of scope for this local QA pass: production deployment, penetration testing 
 - Cucumber BDD and Postman smoke collection pass in CI.
 - Frontend production build succeeds.
 - Confirmed defects are fixed or explicitly recorded as open risks.
-- Manual cases remain labeled `Not Run` until a human executes and records actual results.
+- `manual-test-cases.csv` remains the unexecuted design inventory (`Not Run`); recorded outcomes are kept separately in `Finora-manual-results.csv`.
 
 ## Risks and constraints
 
@@ -62,7 +62,7 @@ Out of scope for this local QA pass: production deployment, penetration testing 
 - Selenium requires a browser/driver and a running backend/frontend.
 - The latest frontend production build passed after route-level lazy loading; the main JavaScript entry is 237.43 kB (80.23 kB gzip).
 - MongoDB standalone deployments do not provide multi-document transactions by default. Concurrent transfers and partial failures need a replica-set test environment before claiming atomic financial operations.
-- Short JMeter CLI smoke profiles at 1, 10, 50, and 100 users completed against a local isolated database. They do not establish production capacity or an SLA; see [`jmeter/README.md`](jmeter/README.md).
+- JMeter local smoke and sustained profiles completed against isolated synthetic QA data. Continuous requests without think time make the sustained profile stress-style; neither run establishes production capacity or an SLA. See [`jmeter/README.md`](jmeter/README.md).
 
 ## Current execution snapshot
 

@@ -29,7 +29,13 @@ const getBudgets = async (req, res, next) => {
         ]);
         const spent = agg[0]?.total || 0;
         const remaining = b.amount - spent;
-        const percentageUsed = b.amount > 0 ? Math.round((spent / b.amount) * 100) : 0;
+        const rawPercentageUsed = b.amount > 0 ? (spent / b.amount) * 100 : 0;
+        const percentageUsed = b.amount > 0 ? Math.round(rawPercentageUsed * 10) / 10 : 0;
+        const status = rawPercentageUsed >= 100
+          ? 'exceeded'
+          : rawPercentageUsed >= 80
+            ? 'warning'
+            : 'ok';
 
         return {
           _id: b._id,
@@ -40,7 +46,7 @@ const getBudgets = async (req, res, next) => {
           spent,
           remaining,
           percentageUsed,
-          status: percentageUsed >= 100 ? 'exceeded' : percentageUsed >= 80 ? 'warning' : 'ok',
+          status,
         };
       })
     );
